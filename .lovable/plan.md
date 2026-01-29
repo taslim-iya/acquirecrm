@@ -1,90 +1,107 @@
 
-# Auto-Sync Contacts with Pipeline Tabs
+# Cap Table Implementation Plan
 
 ## Overview
-This plan implements automatic synchronization between contacts and their relevant pipeline tabs. When you add a contact with a specific type (e.g., investor, company owner), they will automatically appear in the corresponding pipeline.
+Add a dedicated "Cap Table" page below Analytics in the navigation that displays your fundraising progress with capital raised breakdowns by investor.
 
-## Current Behavior
-- Creating an **investor** contact already creates an investor pipeline entry (this is working)
-- Creating an **owner** contact does NOT create a deal pipeline entry
-- The Deals page uses mock data instead of the database
-- Changing a contact's type doesn't update the pipelines
+## What You'll Get
 
-## What Will Change
+### 1. New Cap Table Page
+A professional fundraising dashboard showing:
+- **Total Capital Raised** - Sum of all committed investments
+- **Number of Investors** - Count of committed/closed investors  
+- **Average Investment Size** - Calculated from commitments
+- **Fundraising Progress** - Visual progress bar toward your target
 
-### 1. Owner Contacts Auto-Create Deal Entries
-When you create a contact with type "Company Owner", a corresponding entry will be automatically created in the Deal Pipeline (Deals tab) with:
-- Company name = Contact's organization (or name if no organization)
-- Stage = "Identified" (starting stage)
-- Linked contact = The contact you just created
+### 2. Investor Breakdown Table
+A detailed table with columns:
+- Investor Name
+- Organization
+- Commitment Amount
+- Percentage of Total Raised
+- Stage (Committed/Closed)
+- Commitment Date
 
-### 2. Real Data for Deals Page
-The Deals page will be connected to the database instead of mock data, showing real companies you've added.
+### 3. Visual Charts
+- Pie chart showing capital distribution by investor
+- Bar chart comparing commitment amounts
 
-### 3. Contact Type Changes Trigger Updates
-If you edit a contact and change their type:
-- **To Investor**: Creates an investor pipeline entry (if not already exists)
-- **To Owner**: Creates a deal pipeline entry (if not already exists)
-
-### 4. Reverse Sync from Pipeline Forms
-When adding an investor or company directly from the pipeline tabs, if no contact is linked, one can optionally be created.
+### 4. Empty State
+When no commitments exist, shows a helpful prompt to add investors via the Investors page.
 
 ---
 
 ## Technical Implementation
 
-### Step 1: Create Companies Hook
-Create `src/hooks/useCompanies.ts` with CRUD operations for the companies table, following the same pattern as `useInvestorDeals.ts`.
+### Files to Create
 
-### Step 2: Update Contact Form Modal
-Modify `src/components/contacts/ContactFormModal.tsx` to:
-- Auto-create a company when `contact_type === 'owner'`
-- Handle type changes during edits (create pipeline entries if type changes to investor/owner)
+**`src/pages/CapTable.tsx`**
+- New page component that fetches from `investor_deals` table
+- Filters for investors with `stage` = 'committed' or 'closed'
+- Uses `commitment_amount` field for calculations
+- Includes search/filter functionality
+- Mobile-responsive design matching existing pages
 
-### Step 3: Update Deals Page
-Modify `src/pages/Deals.tsx` to:
-- Use the new `useCompanies` hook instead of mock data
-- Add loading, empty, and error states
-- Connect the "Add Company" button to a form modal
+### Files to Modify
 
-### Step 4: Create Company Form Modal
-Create `src/components/deals/CompanyFormModal.tsx` for adding/editing companies in the Deal pipeline.
+**`src/components/layout/Sidebar.tsx`**
+- Add new navigation item after Analytics:
+```typescript
+{ name: 'Cap Table', href: '/cap-table', icon: PieChart }
+```
 
-### Step 5: Create Delete Company Dialog
-Create `src/components/deals/DeleteCompanyDialog.tsx` for removing companies.
+**`src/App.tsx`**
+- Add new route:
+```typescript
+<Route path="/cap-table" element={<CapTable />} />
+```
 
-### Step 6: Create Deal Card Component Update
-Update `src/components/pipeline/DealCard.tsx` to work with real database data and include edit/delete actions.
+### Data Source
+The `investor_deals` table already has:
+- `commitment_amount` (number) - The investment amount
+- `stage` (enum) - Filter for 'committed' and 'closed' stages
+- `name` and `organization` - Investor identification
+- `created_at`/`updated_at` - For tracking commitment dates
+
+No database changes required - we'll use existing data.
+
+### UI Components Used
+- Existing `PageHeader` component
+- Existing `Card` components with `goldman-card` styling
+- Recharts library (already installed) for pie/bar charts
+- Existing table styling from other pages
 
 ---
 
-## Files to Create
-| File | Description |
-|------|-------------|
-| `src/hooks/useCompanies.ts` | CRUD hooks for companies table |
-| `src/components/deals/CompanyFormModal.tsx` | Form for adding/editing companies |
-| `src/components/deals/DeleteCompanyDialog.tsx` | Confirmation dialog for deletion |
+## Page Layout
 
-## Files to Modify
-| File | Changes |
-|------|---------|
-| `src/components/contacts/ContactFormModal.tsx` | Add auto-create company for owner type, handle type changes |
-| `src/pages/Deals.tsx` | Replace mock data with real database queries |
-| `src/components/pipeline/DealCard.tsx` | Add edit/delete handlers, use database types |
+```text
++------------------------------------------+
+|  Cap Table                    [Export]   |
+|  Track your fundraising progress         |
++------------------------------------------+
+|  +--------+  +--------+  +--------+      |
+|  | $XXX K |  | XX     |  | $XX K  |      |
+|  | Raised |  | Invest |  | Avg    |      |
+|  +--------+  +--------+  +--------+      |
++------------------------------------------+
+|  Progress: ████████░░░░ 65% of $1M goal  |
++------------------------------------------+
+|  +-----------------+  +----------------+ |
+|  | Pie Chart       |  | Bar Chart      | |
+|  | (Distribution)  |  | (Commitments)  | |
+|  +-----------------+  +----------------+ |
++------------------------------------------+
+|  Investor Table                          |
+|  Name | Org | Amount | % | Stage | Date  |
+|  ----------------------------------------|
+|  John  | ABC | $50K  | 25%| Commit| 1/29 |
+|  Jane  | XYZ | $75K  | 37%| Closed| 1/28 |
++------------------------------------------+
+```
 
 ---
 
-## Sync Logic Summary
+## Summary
+This implementation leverages existing investor data and UI patterns for a consistent experience. The cap table will automatically update as you move investors to "Committed" or "Closed" stages and enter their commitment amounts.
 
-| Contact Type | Auto-Creates Entry In | Pipeline Entry Fields |
-|--------------|----------------------|----------------------|
-| Investor | Investor Pipeline | name, organization, stage=not_contacted |
-| Owner | Deal Pipeline | company name=organization, stage=identified |
-| Intermediary | None | - |
-| Advisor | None | - |
-
-## Edge Cases Handled
-- Duplicate prevention: Check if pipeline entry already exists before creating
-- Missing organization: Use contact name as fallback for company name
-- Type change: Only create if no existing pipeline entry is linked
-- Error handling: If pipeline creation fails, contact is still saved with a warning toast
