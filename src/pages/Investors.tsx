@@ -8,6 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useInvestorDeals, InvestorDeal, InvestorStage } from '@/hooks/useInvestorDeals';
 import { Plus, Search, Filter, Loader2, TrendingUp } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 const stages: { key: InvestorStage; label: string; color: string }[] = [
   { key: 'not_contacted', label: 'Not Contacted', color: 'bg-stage-cold' },
@@ -21,8 +24,27 @@ const stages: { key: InvestorStage; label: string; color: string }[] = [
 ];
 
 export default function Investors() {
+  const { user } = useAuth();
   const { data: investors = [], isLoading } = useInvestorDeals();
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Fetch company name from profile
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('company_name')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const companyName = profile?.company_name;
 
   // Modal states
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -61,7 +83,7 @@ export default function Investors() {
     <div className="h-[calc(100vh-3.5rem)] lg:h-screen flex flex-col">
       <div className="p-4 md:p-6 pb-4">
         <PageHeader
-          title="Investor Pipeline"
+          title={companyName ? `${companyName} Investor Pipeline` : 'Investor Pipeline'}
           description="Track your fundraising progress"
           actions={
             <Button onClick={() => handleAddInvestor()}>
