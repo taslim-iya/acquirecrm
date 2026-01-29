@@ -74,14 +74,14 @@ export default function CapTable() {
   const [goalModalOpen, setGoalModalOpen] = useState(false);
   const [goalInput, setGoalInput] = useState('');
 
-  // Fetch fundraising goal from profile
+  // Fetch profile (fundraising goal and company name)
   const { data: profile } = useQuery({
     queryKey: ['profile', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
       const { data, error } = await supabase
         .from('profiles')
-        .select('fundraising_goal')
+        .select('fundraising_goal, company_name')
         .eq('user_id', user.id)
         .maybeSingle();
       if (error) throw error;
@@ -91,6 +91,7 @@ export default function CapTable() {
   });
 
   const fundraisingGoal = profile?.fundraising_goal ?? DEFAULT_FUNDRAISING_GOAL;
+  const companyName = profile?.company_name;
 
   // Update fundraising goal mutation
   const updateGoal = useMutation({
@@ -230,24 +231,32 @@ export default function CapTable() {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
     
+    // Company name (if set)
+    if (companyName) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(companyName, pageWidth / 2, 15, { align: 'center' });
+    }
+    
     // Title
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.text('Cap Table', pageWidth / 2, 20, { align: 'center' });
+    doc.text('Cap Table', pageWidth / 2, companyName ? 28 : 20, { align: 'center' });
     
     // Date
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Generated: ${format(new Date(), 'MMMM d, yyyy')}`, pageWidth / 2, 28, { align: 'center' });
+    doc.text(`Generated: ${format(new Date(), 'MMMM d, yyyy')}`, pageWidth / 2, companyName ? 36 : 28, { align: 'center' });
     
     // Summary metrics
+    const summaryStartY = companyName ? 50 : 42;
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('Fundraising Summary', 14, 42);
+    doc.text('Fundraising Summary', 14, summaryStartY);
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    const summaryY = 50;
+    const summaryY = summaryStartY + 8;
     doc.text(`Total Raised: ${formatCurrency(metrics.totalRaised)}`, 14, summaryY);
     doc.text(`Fundraising Goal: ${formatCurrency(fundraisingGoal)}`, 14, summaryY + 6);
     doc.text(`Progress: ${metrics.progressPercent.toFixed(1)}%`, 14, summaryY + 12);
@@ -272,7 +281,7 @@ export default function CapTable() {
     autoTable(doc, {
       head: [['Investor', 'Organization', 'Commitment', '% of Total', 'Stage', 'Date']],
       body: tableData,
-      startY: 72,
+      startY: companyName ? 80 : 72,
       styles: {
         fontSize: 9,
         cellPadding: 3,
@@ -380,7 +389,7 @@ export default function CapTable() {
   return (
     <div className="p-4 md:p-6 space-y-6">
       <PageHeader
-        title="Cap Table"
+        title={companyName ? `${companyName} Cap Table` : 'Cap Table'}
         description="Track your fundraising progress"
         actions={
           <div className="flex gap-2">
