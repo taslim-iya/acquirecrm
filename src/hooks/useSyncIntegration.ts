@@ -26,6 +26,13 @@ export function useSyncIntegration() {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 404 && data.error?.includes('integration not found')) {
+          toast({
+            title: 'Google not connected',
+            description: 'Connect your Google account in Settings to sync emails.',
+          });
+          return null;
+        }
         throw new Error(data.error || 'Failed to sync emails');
       }
 
