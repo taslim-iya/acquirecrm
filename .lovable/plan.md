@@ -1,151 +1,131 @@
 
-# Fix Non-Functional Buttons on Outreach Page
+# Email Sending with Resend
 
-## Problem Summary
+## Overview
 
-The Outreach page has **4 buttons** that do nothing when clicked because they have no `onClick` handlers:
+Use **Resend** for sending emails from DealScope. This is simpler than the Gmail API approach -- no OAuth scope changes needed. Gmail sync continues handling incoming email.
 
-1. **"New Campaign"** - Header action button
-2. **"New Template"** - In Email Templates card
-3. **"View All"** - In Active Campaigns card  
-4. **"Compose with AI"** - In AI Email Composer card
+## What You'll Need
 
-## Solution
+- A **Resend API key** (free tier: 100 emails/day, 3,000/month)
+- A **verified sending domain** or use Resend's default `onboarding@resend.dev` for testing
+- You can sign up at resend.com and get an API key from the dashboard
 
-I'll implement functional behavior for each button by following the established patterns in the codebase:
+## What Will Be Built
 
-### 1. Compose with AI Button
-**Action:** Navigate to the AI Assistant page with a pre-filled prompt for email drafting.
+### 1. Send Email Backend Function
+A new backend function (`send-email`) that:
+- Accepts `to`, `subject`, `body`, and optional `reply_to`
+- Sends via Resend's API
+- Saves a copy to the `emails` table as an outbound email
 
-This leverages the existing AI Assistant infrastructure that already supports email drafting suggestions.
+### 2. Inbox Page
+A new `/inbox` route with:
+- List of all emails (sent and received) in chronological order
+- Email detail view when clicking an email
+- Compose button to write new emails
+- Sync button to pull latest from Gmail
 
-### 2. New Template Button
-**Action:** Open a modal to create a new email template.
+### 3. Compose Email Modal
+A compose form with:
+- To, Subject, Body fields
+- Template picker (uses existing saved templates)
+- Send button
 
-Since there's no `email_templates` table in the database yet, I'll need to:
-- Create the database table for email templates
-- Create a template form modal component
-- Add hooks for template CRUD operations
+### 4. Database Update
+Add a `direction` column to the `emails` table to distinguish sent vs received emails.
 
-### 3. New Campaign Button  
-**Action:** Show a toast notification that this feature is "coming soon" (similar to Microsoft integration in Settings).
-
-Building a full email campaign system requires significant infrastructure (sending emails, tracking opens/clicks, scheduling). For now, a placeholder is appropriate.
-
-### 4. View All Button
-**Action:** Currently there are no campaigns to view, so this button will be disabled or hidden when there are no campaigns.
+### 5. Navigation Update
+Add "Inbox" to the sidebar with an unread badge.
 
 ---
 
-## Implementation Plan
+## Implementation Steps
 
-### Step 1: Add Navigation for AI Compose
-- Import `useNavigate` from react-router-dom
-- Navigate to `/assistant` with a query parameter or state to trigger the email compose flow
+### Step 1: Store Resend API Key
+Securely store your Resend API key as a backend secret.
 
-### Step 2: Create Email Templates Infrastructure
-
-**Database Migration:**
+### Step 2: Database Migration
+Add `direction` column to `emails` table:
 ```sql
-CREATE TABLE email_templates (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL,
-  name TEXT NOT NULL,
-  subject TEXT NOT NULL,
-  body TEXT NOT NULL,
-  category TEXT DEFAULT 'general',
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-
--- Enable RLS
-ALTER TABLE email_templates ENABLE ROW LEVEL SECURITY;
-
--- RLS Policies
-CREATE POLICY "Users can view own templates" ON email_templates
-  FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Users can create own templates" ON email_templates
-  FOR INSERT WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "Users can update own templates" ON email_templates
-  FOR UPDATE USING (auth.uid() = user_id);
-CREATE POLICY "Users can delete own templates" ON email_templates
-  FOR DELETE USING (auth.uid() = user_id);
+ALTER TABLE emails ADD COLUMN direction text NOT NULL DEFAULT 'inbound';
 ```
 
-**New Files:**
-- `src/hooks/useEmailTemplates.ts` - CRUD hooks for templates
-- `src/components/outreach/TemplateFormModal.tsx` - Modal for creating/editing templates
+### Step 3: Create `send-email` Backend Function
+New file: `supabase/functions/send-email/index.ts`
+- Calls Resend API (`POST https://api.resend.com/emails`)
+- Uses stored API key
+- Saves sent email to database with `direction = 'outbound'`
+- Returns success/failure
 
-**Updated Files:**
-- `src/pages/Outreach.tsx` - Add state, handlers, and modal integration
+### Step 4: Create Compose Email Modal
+New file: `src/components/email/ComposeEmailModal.tsx`
+- To, Subject, Body fields
+- Template dropdown to auto-fill from saved templates
+- Send button calling the backend function
 
-### Step 3: Add Toast for Campaign Button
-- Simple toast notification: "Campaigns feature coming soon"
+### Step 5: Create Send Email Hook
+New file: `src/hooks/useSendEmail.ts`
+- Mutation hook wrapping the backend function call
+- Invalidates email queries on success
 
----
+### Step 6: Create Inbox Page
+New file: `src/pages/Inbox.tsx`
+- Split layout: email list on left, detail on right
+- Shows both inbound and outbound emails
+- Compose button opens the modal
+- Sync button triggers Gmail sync
+- Unread indicators
 
-## Visual Changes
-
-The Outreach page will show:
-- Templates list (when templates exist) instead of empty state
-- Working "New Template" button that opens a modal
-- "Compose with AI" redirects to AI Assistant
-- "New Campaign" shows coming soon toast
+### Step 7: Update Navigation
+- Add "Inbox" entry to `Sidebar.tsx` with unread badge
+- Add `/inbox` route to `App.tsx`
 
 ---
 
 ## Files to Create
-
-1. `src/hooks/useEmailTemplates.ts`
-2. `src/components/outreach/TemplateFormModal.tsx`
+- `supabase/functions/send-email/index.ts` -- Backend function for sending via Resend
+- `src/pages/Inbox.tsx` -- Inbox page
+- `src/components/email/ComposeEmailModal.tsx` -- Compose modal
+- `src/hooks/useSendEmail.ts` -- Send email hook
 
 ## Files to Modify
-
-1. `src/pages/Outreach.tsx`
+- `src/App.tsx` -- Add `/inbox` route
+- `src/components/layout/Sidebar.tsx` -- Add Inbox nav item
+- `supabase/config.toml` -- Add send-email function config
 
 ## Database Changes
+- Add `direction` column to `emails` table
 
-1. Create `email_templates` table with RLS policies
+## Secret Required
+- `RESEND_API_KEY` -- Your Resend API key from resend.com/api-keys
 
 ---
 
-## Technical Details
+## Resend Send Flow
 
-### Template Form Modal Structure
 ```text
-┌─────────────────────────────────────┐
-│  Create Email Template              │
-├─────────────────────────────────────┤
-│  Template Name: [________________]  │
-│                                     │
-│  Subject Line:  [________________]  │
-│                                     │
-│  Category:      [General      ▼ ]   │
-│                                     │
-│  Email Body:                        │
-│  ┌─────────────────────────────┐   │
-│  │                             │   │
-│  │ Write your template here... │   │
-│  │                             │   │
-│  └─────────────────────────────┘   │
-│                                     │
-│           [Cancel]  [Save Template] │
-└─────────────────────────────────────┘
+User composes email in Inbox
+        |
+        v
+Frontend calls send-email backend function
+        |
+        v
+Backend reads RESEND_API_KEY secret
+        |
+        v
+POST to https://api.resend.com/emails
+  { from, to, subject, html }
+        |
+        v
+Save to emails table (direction = 'outbound')
+        |
+        v
+Return success to frontend
 ```
 
-### Template Categories
-- Investor Outreach
-- Follow-up
-- Meeting Request
-- Thank You
-- General
+## Important Notes
 
----
-
-## Summary
-
-This fix will make all buttons on the Outreach page functional:
-- AI compose navigates to the existing AI Assistant
-- Templates can be created and stored in the database
-- Campaigns shows a "coming soon" notification
-- The page follows the same patterns used throughout the app
+- **Sending domain**: By default you can send from `onboarding@resend.dev` for testing. For production, you'll need to verify your own domain in Resend's dashboard.
+- **Free tier**: 100 emails/day, 3,000/month -- plenty for investor outreach.
+- **Receiving**: Gmail sync continues working as-is for incoming emails.
