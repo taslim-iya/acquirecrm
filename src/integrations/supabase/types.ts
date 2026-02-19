@@ -384,6 +384,7 @@ export type Database = {
           body_preview: string | null
           contact_id: string | null
           created_at: string
+          direction: string
           external_id: string | null
           external_provider: string | null
           from_email: string | null
@@ -400,6 +401,7 @@ export type Database = {
           body_preview?: string | null
           contact_id?: string | null
           created_at?: string
+          direction?: string
           external_id?: string | null
           external_provider?: string | null
           from_email?: string | null
@@ -416,6 +418,7 @@ export type Database = {
           body_preview?: string | null
           contact_id?: string | null
           created_at?: string
+          direction?: string
           external_id?: string | null
           external_provider?: string | null
           from_email?: string | null
