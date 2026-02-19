@@ -150,6 +150,7 @@ export default function Settings() {
   // Handle OAuth callback query params
   useEffect(() => {
     const googleAuth = searchParams.get('google_auth');
+    const microsoftAuth = searchParams.get('microsoft_auth');
     const email = searchParams.get('email');
     const message = searchParams.get('message');
 
@@ -158,10 +159,20 @@ export default function Settings() {
         description: email ? `Connected as ${email}` : undefined,
       });
       queryClient.invalidateQueries({ queryKey: ['user_integrations'] });
-      // Clean up URL params
       setSearchParams({});
     } else if (googleAuth === 'error') {
       toast.error('Failed to connect Google', {
+        description: message || 'Please try again',
+      });
+      setSearchParams({});
+    } else if (microsoftAuth === 'success') {
+      toast.success('Microsoft connected successfully', {
+        description: email ? `Connected as ${email}` : undefined,
+      });
+      queryClient.invalidateQueries({ queryKey: ['user_integrations'] });
+      setSearchParams({});
+    } else if (microsoftAuth === 'error') {
+      toast.error('Failed to connect Microsoft', {
         description: message || 'Please try again',
       });
       setSearchParams({});
@@ -206,8 +217,41 @@ export default function Settings() {
     }
   };
 
-  const handleConnectMicrosoft = () => {
-    toast.info('Microsoft integration coming soon');
+  const handleConnectMicrosoft = async () => {
+    setIsConnecting(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Please sign in first');
+        return;
+      }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/microsoft-oauth-init`,
+        {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to start Microsoft OAuth');
+      }
+
+      window.location.href = data.url;
+    } catch (error) {
+      console.error('Microsoft OAuth init error:', error);
+      toast.error('Failed to connect Microsoft', {
+        description: error instanceof Error ? error.message : 'Please try again',
+      });
+    } finally {
+      setIsConnecting(false);
+    }
   };
 
   const handleDisconnect = async (provider: string) => {
@@ -333,7 +377,7 @@ export default function Settings() {
                 </CardTitle>
                 <CardDescription>Connect your email and calendar to sync meetings and communications</CardDescription>
               </div>
-              {googleIntegration && (
+              {(googleIntegration || microsoftIntegration) && (
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -445,8 +489,17 @@ export default function Settings() {
                       </Button>
                     </div>
                   ) : (
-                    <Button variant="outline" size="sm" onClick={handleConnectMicrosoft}>
-                      <Link2 className="w-4 h-4 mr-2" />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleConnectMicrosoft}
+                      disabled={isConnecting}
+                    >
+                      {isConnecting ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Link2 className="w-4 h-4 mr-2" />
+                      )}
                       Connect
                     </Button>
                   )}
