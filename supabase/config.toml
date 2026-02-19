@@ -14,3 +14,15 @@ verify_jwt = false
 
 [functions.send-email]
 verify_jwt = false
+
+[functions.microsoft-oauth-init]
+verify_jwt = false
+
+[functions.microsoft-oauth-callback]
+verify_jwt = false
+
+[functions.sync-microsoft-emails]
+verify_jwt = false
+
+[functions.sync-microsoft-calendar]
+verify_jwt = false

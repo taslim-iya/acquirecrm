@@ -6,42 +6,68 @@ export function useSyncIntegration() {
   const [isSyncing, setIsSyncing] = useState(false);
   const { toast } = useToast();
 
+  const callSyncFunction = async (functionName: string, label: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) throw new Error('Not authenticated');
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${functionName}`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      if (response.status === 404 && data.error?.includes('integration not found')) {
+        // Silently skip — provider not connected
+        return null;
+      }
+      throw new Error(data.error || `Failed to sync ${label}`);
+    }
+
+    return data;
+  };
+
   const syncEmails = async () => {
     setIsSyncing(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
+      const results = await Promise.allSettled([
+        callSyncFunction('sync-google-emails', 'Gmail'),
+        callSyncFunction('sync-microsoft-emails', 'Outlook'),
+      ]);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-google-emails`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
+      let totalSynced = 0;
+      const providers: string[] = [];
+
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value) {
+          totalSynced += result.value.synced || 0;
+          providers.push(result.value.synced !== undefined ? '' : '');
         }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 404 && data.error?.includes('integration not found')) {
-          toast({
-            title: 'Google not connected',
-            description: 'Connect your Google account in Settings to sync emails.',
-          });
-          return null;
-        }
-        throw new Error(data.error || 'Failed to sync emails');
       }
 
-      toast({
-        title: 'Emails synced',
-        description: `Successfully synced ${data.synced} emails from Gmail.`,
-      });
-
-      return data;
+      if (totalSynced > 0) {
+        toast({
+          title: 'Emails synced',
+          description: `Successfully synced ${totalSynced} emails.`,
+        });
+      } else {
+        const allSkipped = results.every(
+          r => r.status === 'fulfilled' && r.value === null
+        );
+        if (allSkipped) {
+          toast({
+            title: 'No email providers connected',
+            description: 'Connect Google or Microsoft in Settings to sync emails.',
+          });
+        }
+      }
     } catch (error) {
       console.error('Email sync error:', error);
       toast({
@@ -49,7 +75,6 @@ export function useSyncIntegration() {
         description: error instanceof Error ? error.message : 'Failed to sync emails',
         variant: 'destructive',
       });
-      throw error;
     } finally {
       setIsSyncing(false);
     }
@@ -58,32 +83,35 @@ export function useSyncIntegration() {
   const syncCalendar = async () => {
     setIsSyncing(true);
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('Not authenticated');
+      const results = await Promise.allSettled([
+        callSyncFunction('sync-google-calendar', 'Google Calendar'),
+        callSyncFunction('sync-microsoft-calendar', 'Microsoft Calendar'),
+      ]);
 
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-google-calendar`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            'Content-Type': 'application/json',
-          },
+      let totalSynced = 0;
+
+      for (const result of results) {
+        if (result.status === 'fulfilled' && result.value) {
+          totalSynced += result.value.synced || 0;
         }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to sync calendar');
       }
 
-      toast({
-        title: 'Calendar synced',
-        description: `Successfully synced ${data.synced} events from Google Calendar.`,
-      });
-
-      return data;
+      if (totalSynced > 0) {
+        toast({
+          title: 'Calendar synced',
+          description: `Successfully synced ${totalSynced} events.`,
+        });
+      } else {
+        const allSkipped = results.every(
+          r => r.status === 'fulfilled' && r.value === null
+        );
+        if (allSkipped) {
+          toast({
+            title: 'No calendar providers connected',
+            description: 'Connect Google or Microsoft in Settings to sync calendar.',
+          });
+        }
+      }
     } catch (error) {
       console.error('Calendar sync error:', error);
       toast({
@@ -91,7 +119,6 @@ export function useSyncIntegration() {
         description: error instanceof Error ? error.message : 'Failed to sync calendar',
         variant: 'destructive',
       });
-      throw error;
     } finally {
       setIsSyncing(false);
     }
