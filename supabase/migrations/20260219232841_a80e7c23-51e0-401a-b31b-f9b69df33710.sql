@@ -1,0 +1,1 @@
+ALTER TABLE public.emails ADD COLUMN direction text NOT NULL DEFAULT 'inbound';
