@@ -6,13 +6,15 @@ Deno.serve(async (req) => {
     const code = url.searchParams.get('code');
     const state = url.searchParams.get('state');
     const error = url.searchParams.get('error');
+    const errorDescription = url.searchParams.get('error_description');
 
     const redirectBase = Deno.env.get('FRONTEND_URL') || 'https://lovable.dev';
     const settingsUrl = `${redirectBase}/settings`;
 
     if (error) {
-      console.error('Microsoft OAuth error:', error);
-      return Response.redirect(`${settingsUrl}?microsoft_auth=error&message=${encodeURIComponent(error)}`, 302);
+      console.error('Microsoft OAuth error:', error, 'Description:', errorDescription);
+      const msg = errorDescription || error;
+      return Response.redirect(`${settingsUrl}?microsoft_auth=error&message=${encodeURIComponent(msg)}`, 302);
     }
 
     if (!code || !state) {
