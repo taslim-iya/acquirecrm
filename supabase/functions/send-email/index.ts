@@ -51,6 +51,15 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Fetch user profile for display name
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name, company_name")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    const senderName = from_name || profile?.display_name || profile?.company_name || "DealScope";
+
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) {
       return new Response(
@@ -70,9 +79,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: from_name
-          ? `${from_name} <onboarding@resend.dev>`
-          : "DealScope <onboarding@resend.dev>",
+        from: `${senderName} <onboarding@resend.dev>`,
         to: Array.isArray(to) ? to : [to],
         subject,
         html: body
@@ -104,7 +111,7 @@ Deno.serve(async (req) => {
       subject,
       body_preview: body.substring(0, 500),
       from_email: userEmail,
-      from_name: from_name || "DealScope",
+      from_name: senderName,
       to_emails: Array.isArray(to) ? to : [to],
       received_at: new Date().toISOString(),
       is_read: true,
