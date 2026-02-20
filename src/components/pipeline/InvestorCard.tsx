@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { InvestorDeal, InvestorStage, useUpdateInvestorStage, useUpdateInvestorStageWithCommitment } from '@/hooks/useInvestorDeals';
 import { cn } from '@/lib/utils';
-import { DollarSign, MoreHorizontal, Pencil, Trash2, ArrowRight } from 'lucide-react';
+import { DollarSign, MoreHorizontal, Pencil, Trash2, ArrowRight, Mail } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,6 +15,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { CommitmentAmountModal } from './CommitmentAmountModal';
+import { SmartComposeModal } from '@/components/email/SmartComposeModal';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
 interface InvestorCardProps {
   deal: InvestorDeal;
@@ -49,7 +52,23 @@ export function InvestorCard({ deal, onEdit, onDelete }: InvestorCardProps) {
   const updateStageWithCommitment = useUpdateInvestorStageWithCommitment();
   
   const [commitmentModalOpen, setCommitmentModalOpen] = useState(false);
+  const [composeOpen, setComposeOpen] = useState(false);
   const [pendingStage, setPendingStage] = useState<'committed' | 'closed' | null>(null);
+
+  // Fetch contact email for this investor
+  const { data: contactData } = useQuery({
+    queryKey: ['investor_contact', deal.contact_id],
+    queryFn: async () => {
+      if (!deal.contact_id) return null;
+      const { data } = await supabase
+        .from('contacts')
+        .select('email, name')
+        .eq('id', deal.contact_id)
+        .single();
+      return data;
+    },
+    enabled: !!deal.contact_id,
+  });
 
   const formatCurrency = (amount?: number | null) => {
     if (!amount) return null;
@@ -135,6 +154,10 @@ export function InvestorCard({ deal, onEdit, onDelete }: InvestorCardProps) {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => setComposeOpen(true)}>
+              <Mail className="w-4 h-4 mr-2" />
+              Send Email
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={onEdit}>
               <Pencil className="w-4 h-4 mr-2" />
               Edit
@@ -184,6 +207,13 @@ export function InvestorCard({ deal, onEdit, onDelete }: InvestorCardProps) {
         targetStage={pendingStage || 'committed'}
         onConfirm={handleCommitmentConfirm}
         isLoading={updateStageWithCommitment.isPending}
+      />
+      <SmartComposeModal
+        open={composeOpen}
+        onOpenChange={setComposeOpen}
+        investorId={deal.id}
+        investorName={deal.organization || deal.name}
+        investorEmail={contactData?.email || ''}
       />
     </div>
   );

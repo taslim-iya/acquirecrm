@@ -346,6 +346,42 @@ export type Database = {
           },
         ]
       }
+      email_attachments: {
+        Row: {
+          created_at: string
+          document_id: string
+          email_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          email_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          email_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_attachments_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_attachments_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_templates: {
         Row: {
           body: string
@@ -392,6 +428,8 @@ export type Database = {
           id: string
           is_read: boolean | null
           received_at: string | null
+          scheduled_send_at: string | null
+          send_status: string
           subject: string | null
           thread_id: string | null
           to_emails: string[] | null
@@ -409,6 +447,8 @@ export type Database = {
           id?: string
           is_read?: boolean | null
           received_at?: string | null
+          scheduled_send_at?: string | null
+          send_status?: string
           subject?: string | null
           thread_id?: string | null
           to_emails?: string[] | null
@@ -426,6 +466,8 @@ export type Database = {
           id?: string
           is_read?: boolean | null
           received_at?: string | null
+          scheduled_send_at?: string | null
+          send_status?: string
           subject?: string | null
           thread_id?: string | null
           to_emails?: string[] | null
