@@ -21,6 +21,7 @@ import {
   Menu,
   X,
   PieChart,
+  CheckSquare,
 } from 'lucide-react';
 import { useUnreadEmailCount } from '@/hooks/useEmails';
 
@@ -33,6 +34,7 @@ const navigation = [
   { name: 'Outreach', href: '/outreach', icon: Mail },
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Calendar', href: '/calendar', icon: Calendar },
+  { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Cap Table', href: '/cap-table', icon: PieChart },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
 ];
