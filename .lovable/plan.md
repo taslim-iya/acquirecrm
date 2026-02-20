@@ -1,131 +1,77 @@
 
-# Email Sending with Resend
+# Smart Follow-Up Reminders + Tasks Page
 
 ## Overview
-
-Use **Resend** for sending emails from DealScope. This is simpler than the Gmail API approach -- no OAuth scope changes needed. Gmail sync continues handling incoming email.
-
-## What You'll Need
-
-- A **Resend API key** (free tier: 100 emails/day, 3,000/month)
-- A **verified sending domain** or use Resend's default `onboarding@resend.dev` for testing
-- You can sign up at resend.com and get an API key from the dashboard
-
-## What Will Be Built
-
-### 1. Send Email Backend Function
-A new backend function (`send-email`) that:
-- Accepts `to`, `subject`, `body`, and optional `reply_to`
-- Sends via Resend's API
-- Saves a copy to the `emails` table as an outbound email
-
-### 2. Inbox Page
-A new `/inbox` route with:
-- List of all emails (sent and received) in chronological order
-- Email detail view when clicking an email
-- Compose button to write new emails
-- Sync button to pull latest from Gmail
-
-### 3. Compose Email Modal
-A compose form with:
-- To, Subject, Body fields
-- Template picker (uses existing saved templates)
-- Send button
-
-### 4. Database Update
-Add a `direction` column to the `emails` table to distinguish sent vs received emails.
-
-### 5. Navigation Update
-Add "Inbox" to the sidebar with an unread badge.
+Add two features: (1) a **notification bell** in the top bar showing overdue tasks and stale contacts/investors needing follow-up, and (2) a **dedicated Tasks page** for full task management with filtering, recurring reminders, and contact/investor linking.
 
 ---
 
-## Implementation Steps
+## Feature 1: Notification Bell
 
-### Step 1: Store Resend API Key
-Securely store your Resend API key as a backend secret.
+A bell icon added to the `MainLayout` header (top-right area) that shows a count badge of actionable items:
+- **Overdue tasks** (due date has passed, not completed)
+- **Stale contacts** (contacts with `last_interaction_at` older than 7 days, or null)
+- **Investors needing follow-up** (investors in active stages like `outreach_sent` or `follow_up` with no recent activity)
 
-### Step 2: Database Migration
-Add `direction` column to `emails` table:
+Clicking the bell opens a dropdown/popover listing these items grouped by type, with quick actions (mark complete, snooze, navigate to contact/investor).
+
+### Components
+- `NotificationBell.tsx` - Bell icon + badge + dropdown popover
+- `useNotifications.ts` - Hook combining overdue tasks, stale contacts, and stale investors into a unified notification list
+
+---
+
+## Feature 2: Dedicated Tasks Page
+
+A full `/tasks` route with:
+- **Tabs**: All, Today, Upcoming, Overdue, Completed
+- **Task creation** with full fields: title, description, priority, due date, linked contact/investor/company, recurring option
+- **Filters**: By priority, by linked entity, by status
+- **Bulk actions**: Mark complete, delete
+- **Recurring tasks**: A `recurrence` field (none, daily, weekly, monthly) that auto-creates the next task when one is completed
+
+### Database Changes
+Add columns to the `tasks` table:
+- `description` (text, nullable) - task notes/details
+- `recurrence` (text, nullable, default null) - values: `daily`, `weekly`, `monthly`, or null
+- `investor_deal_id` (uuid, nullable) - link task to an investor
+
+### New Files
+- `src/pages/Tasks.tsx` - Full tasks page with tabs and filters
+- `src/components/tasks/TaskFormModal.tsx` - Create/edit task modal with all fields
+- `src/components/tasks/TaskRow.tsx` - Individual task row component
+- `src/components/tasks/DeleteTaskDialog.tsx` - Confirmation dialog
+- `src/components/layout/NotificationBell.tsx` - Bell dropdown component
+- `src/hooks/useNotifications.ts` - Unified notifications hook
+
+### Modified Files
+- `src/components/layout/MainLayout.tsx` - Add NotificationBell to header
+- `src/components/layout/Sidebar.tsx` - Add Tasks nav item
+- `src/App.tsx` - Add `/tasks` route
+- `src/hooks/useTasks.ts` - Update types for new columns
+
+---
+
+## Technical Details
+
+### Database Migration
 ```sql
-ALTER TABLE emails ADD COLUMN direction text NOT NULL DEFAULT 'inbound';
+ALTER TABLE public.tasks
+  ADD COLUMN IF NOT EXISTS description text,
+  ADD COLUMN IF NOT EXISTS recurrence text,
+  ADD COLUMN IF NOT EXISTS investor_deal_id uuid;
 ```
 
-### Step 3: Create `send-email` Backend Function
-New file: `supabase/functions/send-email/index.ts`
-- Calls Resend API (`POST https://api.resend.com/emails`)
-- Uses stored API key
-- Saves sent email to database with `direction = 'outbound'`
-- Returns success/failure
-
-### Step 4: Create Compose Email Modal
-New file: `src/components/email/ComposeEmailModal.tsx`
-- To, Subject, Body fields
-- Template dropdown to auto-fill from saved templates
-- Send button calling the backend function
-
-### Step 5: Create Send Email Hook
-New file: `src/hooks/useSendEmail.ts`
-- Mutation hook wrapping the backend function call
-- Invalidates email queries on success
-
-### Step 6: Create Inbox Page
-New file: `src/pages/Inbox.tsx`
-- Split layout: email list on left, detail on right
-- Shows both inbound and outbound emails
-- Compose button opens the modal
-- Sync button triggers Gmail sync
-- Unread indicators
-
-### Step 7: Update Navigation
-- Add "Inbox" entry to `Sidebar.tsx` with unread badge
-- Add `/inbox` route to `App.tsx`
-
----
-
-## Files to Create
-- `supabase/functions/send-email/index.ts` -- Backend function for sending via Resend
-- `src/pages/Inbox.tsx` -- Inbox page
-- `src/components/email/ComposeEmailModal.tsx` -- Compose modal
-- `src/hooks/useSendEmail.ts` -- Send email hook
-
-## Files to Modify
-- `src/App.tsx` -- Add `/inbox` route
-- `src/components/layout/Sidebar.tsx` -- Add Inbox nav item
-- `supabase/config.toml` -- Add send-email function config
-
-## Database Changes
-- Add `direction` column to `emails` table
-
-## Secret Required
-- `RESEND_API_KEY` -- Your Resend API key from resend.com/api-keys
-
----
-
-## Resend Send Flow
-
+### Notification Logic (useNotifications hook)
 ```text
-User composes email in Inbox
-        |
-        v
-Frontend calls send-email backend function
-        |
-        v
-Backend reads RESEND_API_KEY secret
-        |
-        v
-POST to https://api.resend.com/emails
-  { from, to, subject, html }
-        |
-        v
-Save to emails table (direction = 'outbound')
-        |
-        v
-Return success to frontend
+1. Query tasks where due_date < today AND completed = false
+2. Query contacts where last_interaction_at < (now - 7 days) OR null
+3. Query investor_deals in active stages with updated_at < (now - 5 days)
+4. Merge into a single sorted list by urgency
 ```
 
-## Important Notes
+### Sidebar Addition
+Add a "Tasks" item with `CheckSquare` icon between "Calendar" and "Cap Table" in the navigation array.
 
-- **Sending domain**: By default you can send from `onboarding@resend.dev` for testing. For production, you'll need to verify your own domain in Resend's dashboard.
-- **Free tier**: 100 emails/day, 3,000/month -- plenty for investor outreach.
-- **Receiving**: Gmail sync continues working as-is for incoming emails.
+### Recurring Task Flow
+When a task with `recurrence` is marked complete, the `useToggleTaskComplete` mutation will also create a new task with the next due date calculated from the recurrence interval.
