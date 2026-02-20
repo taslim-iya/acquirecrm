@@ -636,9 +636,12 @@ export type Database = {
           completed: boolean | null
           contact_id: string | null
           created_at: string
+          description: string | null
           due_date: string | null
           id: string
+          investor_deal_id: string | null
           priority: string | null
+          recurrence: string | null
           title: string
           updated_at: string
           user_id: string
@@ -648,9 +651,12 @@ export type Database = {
           completed?: boolean | null
           contact_id?: string | null
           created_at?: string
+          description?: string | null
           due_date?: string | null
           id?: string
+          investor_deal_id?: string | null
           priority?: string | null
+          recurrence?: string | null
           title: string
           updated_at?: string
           user_id: string
@@ -660,9 +666,12 @@ export type Database = {
           completed?: boolean | null
           contact_id?: string | null
           created_at?: string
+          description?: string | null
           due_date?: string | null
           id?: string
+          investor_deal_id?: string | null
           priority?: string | null
+          recurrence?: string | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -680,6 +689,13 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_investor_deal_id_fkey"
+            columns: ["investor_deal_id"]
+            isOneToOne: false
+            referencedRelation: "investor_deals"
             referencedColumns: ["id"]
           },
         ]

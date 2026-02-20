@@ -19,6 +19,7 @@ import CapTable from "./pages/CapTable";
 import Assistant from "./pages/Assistant";
 import Settings from "./pages/Settings";
 import Inbox from "./pages/Inbox";
+import Tasks from "./pages/Tasks";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -49,6 +50,7 @@ const App = () => (
                       <Route path="/documents" element={<Documents />} />
                       <Route path="/calendar" element={<CalendarPage />} />
                       <Route path="/analytics" element={<Analytics />} />
+                      <Route path="/tasks" element={<Tasks />} />
                       <Route path="/cap-table" element={<CapTable />} />
                       <Route path="/assistant" element={<Assistant />} />
                       <Route path="/settings" element={<Settings />} />

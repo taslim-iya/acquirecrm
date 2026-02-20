@@ -3,7 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
-export type Task = Tables<'tasks'>;
+export type Task = Tables<'tasks'> & {
+  description?: string | null;
+  recurrence?: string | null;
+  investor_deal_id?: string | null;
+};
 export type TaskInsert = TablesInsert<'tasks'>;
 export type TaskUpdate = TablesUpdate<'tasks'>;
 
