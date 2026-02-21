@@ -18,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useCreateEmailTemplate, useUpdateEmailTemplate, EmailTemplate } from '@/hooks/useEmailTemplates';
+import { useAppMode } from '@/hooks/useAppMode';
 
 interface TemplateFormModalProps {
   open: boolean;
@@ -25,11 +26,20 @@ interface TemplateFormModalProps {
   template?: EmailTemplate | null;
 }
 
-const TEMPLATE_CATEGORIES = [
+const FUNDRAISING_CATEGORIES = [
   { value: 'investor_outreach', label: 'Investor Outreach' },
   { value: 'follow_up', label: 'Follow-up' },
   { value: 'meeting_request', label: 'Meeting Request' },
   { value: 'thank_you', label: 'Thank You' },
+  { value: 'general', label: 'General' },
+];
+
+const DEAL_SOURCING_CATEGORIES = [
+  { value: 'founder_outreach', label: 'Founder Outreach' },
+  { value: 'broker_intro', label: 'Broker Intro / Deal Request' },
+  { value: 'follow_up', label: 'Follow-up' },
+  { value: 'meeting_request', label: 'Meeting Request' },
+  { value: 'deal_sourcing', label: 'Deal Sourcing' },
   { value: 'general', label: 'General' },
 ];
 
@@ -38,9 +48,12 @@ export function TemplateFormModal({ open, onOpenChange, template }: TemplateForm
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [category, setCategory] = useState('general');
+  const { mode } = useAppMode();
 
   const createTemplate = useCreateEmailTemplate();
   const updateTemplate = useUpdateEmailTemplate();
+
+  const TEMPLATE_CATEGORIES = mode === 'deal-sourcing' ? DEAL_SOURCING_CATEGORIES : FUNDRAISING_CATEGORIES;
 
   const isEditing = !!template;
   const isLoading = createTemplate.isPending || updateTemplate.isPending;

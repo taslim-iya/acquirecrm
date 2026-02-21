@@ -9,7 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useContacts } from '@/hooks/useContacts';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useInvestorDeals } from '@/hooks/useInvestorDeals';
+import { useDeals } from '@/hooks/useDeals';
 import { Task } from '@/hooks/useTasks';
+import { useAppMode } from '@/hooks/useAppMode';
 
 interface TaskFormData {
   title: string;
@@ -33,6 +35,8 @@ export function TaskFormModal({ open, onOpenChange, onSubmit, task }: TaskFormMo
   const { data: contacts = [] } = useContacts();
   const { data: companies = [] } = useCompanies();
   const { data: investors = [] } = useInvestorDeals();
+  const { data: deals = [] } = useDeals();
+  const { mode } = useAppMode();
 
   const { register, handleSubmit, reset, setValue, watch } = useForm<TaskFormData>({
     defaultValues: {
@@ -164,16 +168,28 @@ export function TaskFormModal({ open, onOpenChange, onSubmit, task }: TaskFormMo
               </Select>
             </div>
             <div>
-              <Label>Investor</Label>
-              <Select value={watch('investor_deal_id')} onValueChange={(v) => setValue('investor_deal_id', v)}>
-                <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  {investors.map((i) => (
-                    <SelectItem key={i.id} value={i.id}>{i.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label>{mode === 'fundraising' ? 'Investor' : 'Deal'}</Label>
+              {mode === 'fundraising' ? (
+                <Select value={watch('investor_deal_id')} onValueChange={(v) => setValue('investor_deal_id', v)}>
+                  <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {investors.map((i) => (
+                      <SelectItem key={i.id} value={i.id}>{i.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Select value={watch('company_id')} onValueChange={(v) => setValue('company_id', v)}>
+                  <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {deals.map((d) => (
+                      <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
           </div>
 

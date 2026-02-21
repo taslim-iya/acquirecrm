@@ -2,7 +2,8 @@ import { CheckCircle2, Circle, Clock, AlertCircle, Plus, Loader2 } from 'lucide-
 import { cn } from '@/lib/utils';
 import { useTasks, useToggleTaskComplete, useCreateTask, Task } from '@/hooks/useTasks';
 import { format, isToday, isTomorrow, isThisWeek, isPast } from 'date-fns';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
+import { useAppMode } from '@/hooks/useAppMode';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -14,7 +15,19 @@ const priorityColors = {
 };
 
 export function TaskList() {
-  const { data: tasks = [], isLoading } = useTasks();
+  const { data: allTasks = [], isLoading } = useTasks();
+  const { mode } = useAppMode();
+
+  // Filter tasks by mode
+  const tasks = useMemo(() => {
+    return allTasks.filter(t => {
+      if (mode === 'fundraising') {
+        return !!t.investor_deal_id || (!t.company_id && !t.investor_deal_id);
+      } else {
+        return !!t.company_id || (!t.company_id && !t.investor_deal_id);
+      }
+    });
+  }, [allTasks, mode]);
   const toggleComplete = useToggleTaskComplete();
   const createTask = useCreateTask();
   const [newTaskTitle, setNewTaskTitle] = useState('');

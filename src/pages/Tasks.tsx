@@ -12,11 +12,26 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAppMode } from '@/hooks/useAppMode';
 
 type TabValue = 'all' | 'today' | 'upcoming' | 'overdue' | 'completed';
 
 export default function Tasks() {
-  const { data: tasks = [], isLoading } = useTasks();
+  const { data: allTasks = [], isLoading } = useTasks();
+  const { mode } = useAppMode();
+
+  // Filter tasks by mode: fundraising shows investor-linked tasks, deal sourcing shows deal/company-linked tasks
+  const tasks = useMemo(() => {
+    return allTasks.filter(t => {
+      if (mode === 'fundraising') {
+        // Show tasks linked to investors, or unlinked tasks (no company and no investor)
+        return !!t.investor_deal_id || (!t.company_id && !t.investor_deal_id);
+      } else {
+        // Show tasks linked to companies/deals, or unlinked tasks
+        return !!t.company_id || (!t.company_id && !t.investor_deal_id);
+      }
+    });
+  }, [allTasks, mode]);
   const createTask = useCreateTask();
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
@@ -123,7 +138,7 @@ export default function Tasks() {
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <PageHeader
         title="Tasks"
-        description="Manage your to-dos, reminders, and follow-ups"
+        description={mode === 'fundraising' ? 'Manage investor follow-ups and reminders' : 'Manage deal tasks, diligence items, and follow-ups'}
         actions={
           <Button onClick={() => { setEditingTask(null); setFormOpen(true); }}>
             <Plus className="h-4 w-4 mr-2" /> New Task

@@ -9,20 +9,33 @@ import { useEmailTemplates, useDeleteEmailTemplate, EmailTemplate } from '@/hook
 import { TemplateFormModal } from '@/components/outreach/TemplateFormModal';
 import { toast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { useAppMode } from '@/hooks/useAppMode';
 
 const CATEGORY_LABELS: Record<string, string> = {
   investor_outreach: 'Investor Outreach',
+  founder_outreach: 'Founder Outreach',
+  broker_intro: 'Broker Intro / Deal Request',
   follow_up: 'Follow-up',
   meeting_request: 'Meeting Request',
   thank_you: 'Thank You',
+  deal_sourcing: 'Deal Sourcing',
   general: 'General',
 };
 
+// Categories that belong to each mode
+const FUNDRAISING_CATS = new Set(['investor_outreach', 'follow_up', 'meeting_request', 'thank_you', 'general']);
+const DEAL_SOURCING_CATS = new Set(['founder_outreach', 'broker_intro', 'follow_up', 'meeting_request', 'deal_sourcing', 'general']);
+
 export default function Outreach() {
   const navigate = useNavigate();
+  const { mode } = useAppMode();
   const { data: emails = [] } = useEmails(100);
-  const { data: templates = [] } = useEmailTemplates();
+  const { data: allTemplates = [] } = useEmailTemplates();
   const deleteTemplate = useDeleteEmailTemplate();
+
+  // Filter templates by current mode
+  const allowedCats = mode === 'deal-sourcing' ? DEAL_SOURCING_CATS : FUNDRAISING_CATS;
+  const templates = allTemplates.filter(t => allowedCats.has(t.category));
   
   const [templateModalOpen, setTemplateModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<EmailTemplate | null>(null);
@@ -40,7 +53,10 @@ export default function Outreach() {
   };
 
   const handleComposeWithAI = () => {
-    navigate('/assistant', { state: { initialPrompt: 'Help me draft an outreach email to an investor' } });
+    const prompt = mode === 'deal-sourcing'
+      ? 'Help me draft an outreach email to a business owner or broker about a potential acquisition'
+      : 'Help me draft an outreach email to an investor';
+    navigate('/assistant', { state: { initialPrompt: prompt } });
   };
 
   const handleNewTemplate = () => {

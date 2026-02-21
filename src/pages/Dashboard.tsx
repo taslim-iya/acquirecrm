@@ -63,8 +63,8 @@ export default function Dashboard() {
   return (
     <div className="p-4 md:p-6">
       <PageHeader
-        title="Dashboard"
-        description={mode === 'fundraising' ? 'Your fundraising command center' : 'Your deal sourcing command center'}
+        title={mode === 'fundraising' ? 'Fundraising Dashboard' : 'Deal Sourcing Dashboard'}
+        description={mode === 'fundraising' ? 'Track investor outreach, meetings, and commitments' : 'Track deal pipeline, targets, and broker activity'}
       />
 
       {/* KPI Grid */}
