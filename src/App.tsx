@@ -23,6 +23,12 @@ import Inbox from "./pages/Inbox";
 import Tasks from "./pages/Tasks";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+// Deal Sourcing pages
+import TargetUniverse from "./pages/TargetUniverse";
+import DealSourcingDeals from "./pages/DealSourcingDeals";
+import DealProfile from "./pages/DealProfile";
+import BrokersPage from "./pages/BrokersPage";
+import DealSourcingAnalytics from "./pages/DealSourcingAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -45,7 +51,16 @@ const App = () => (
                         <Route path="/" element={<Dashboard />} />
                         <Route path="/inbox" element={<Inbox />} />
                         <Route path="/contacts" element={<Contacts />} />
+                        {/* Fundraising */}
                         <Route path="/investors" element={<Investors />} />
+                        <Route path="/cap-table" element={<CapTable />} />
+                        {/* Deal Sourcing */}
+                        <Route path="/targets" element={<TargetUniverse />} />
+                        <Route path="/ds-deals" element={<DealSourcingDeals />} />
+                        <Route path="/deal/:id" element={<DealProfile />} />
+                        <Route path="/brokers" element={<BrokersPage />} />
+                        <Route path="/ds-analytics" element={<DealSourcingAnalytics />} />
+                        {/* Shared */}
                         <Route path="/deals" element={<Deals />} />
                         <Route path="/notes" element={<NotesPage />} />
                         <Route path="/outreach" element={<Outreach />} />
@@ -53,7 +68,6 @@ const App = () => (
                         <Route path="/calendar" element={<CalendarPage />} />
                         <Route path="/analytics" element={<Analytics />} />
                         <Route path="/tasks" element={<Tasks />} />
-                        <Route path="/cap-table" element={<CapTable />} />
                         <Route path="/assistant" element={<Assistant />} />
                         <Route path="/settings" element={<Settings />} />
                         <Route path="*" element={<NotFound />} />
