@@ -72,6 +72,51 @@ export type Database = {
           },
         ]
       }
+      brokers: {
+        Row: {
+          contact_name: string
+          coverage_geo: string | null
+          coverage_sector: string | null
+          created_at: string
+          email: string | null
+          firm: string
+          id: string
+          notes: string | null
+          phone: string | null
+          responsiveness_score: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_name: string
+          coverage_geo?: string | null
+          coverage_sector?: string | null
+          created_at?: string
+          email?: string | null
+          firm: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          responsiveness_score?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_name?: string
+          coverage_geo?: string | null
+          coverage_sector?: string | null
+          created_at?: string
+          email?: string | null
+          firm?: string
+          id?: string
+          notes?: string | null
+          phone?: string | null
+          responsiveness_score?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       calendar_events: {
         Row: {
           all_day: boolean | null
@@ -157,16 +202,27 @@ export type Database = {
       companies: {
         Row: {
           attractiveness_score: number | null
+          company_source: string | null
+          company_status: string | null
+          company_tags: string[] | null
           contact_id: string | null
           created_at: string
+          description: string | null
           ebitda: number | null
+          ebitda_band: string | null
+          employee_count: number | null
           estimated_valuation: number | null
           geography: string | null
           id: string
           industry: string | null
+          last_touched_at: string | null
+          naics_code: string | null
           name: string
           notes: string | null
+          ownership_type: string | null
           revenue: number | null
+          revenue_band: string | null
+          sic_code: string | null
           stage: Database["public"]["Enums"]["deal_stage"]
           updated_at: string
           user_id: string
@@ -174,16 +230,27 @@ export type Database = {
         }
         Insert: {
           attractiveness_score?: number | null
+          company_source?: string | null
+          company_status?: string | null
+          company_tags?: string[] | null
           contact_id?: string | null
           created_at?: string
+          description?: string | null
           ebitda?: number | null
+          ebitda_band?: string | null
+          employee_count?: number | null
           estimated_valuation?: number | null
           geography?: string | null
           id?: string
           industry?: string | null
+          last_touched_at?: string | null
+          naics_code?: string | null
           name: string
           notes?: string | null
+          ownership_type?: string | null
           revenue?: number | null
+          revenue_band?: string | null
+          sic_code?: string | null
           stage?: Database["public"]["Enums"]["deal_stage"]
           updated_at?: string
           user_id: string
@@ -191,16 +258,27 @@ export type Database = {
         }
         Update: {
           attractiveness_score?: number | null
+          company_source?: string | null
+          company_status?: string | null
+          company_tags?: string[] | null
           contact_id?: string | null
           created_at?: string
+          description?: string | null
           ebitda?: number | null
+          ebitda_band?: string | null
+          employee_count?: number | null
           estimated_valuation?: number | null
           geography?: string | null
           id?: string
           industry?: string | null
+          last_touched_at?: string | null
+          naics_code?: string | null
           name?: string
           notes?: string | null
+          ownership_type?: string | null
           revenue?: number | null
+          revenue_band?: string | null
+          sic_code?: string | null
           stage?: Database["public"]["Enums"]["deal_stage"]
           updated_at?: string
           user_id?: string
@@ -278,6 +356,220 @@ export type Database = {
           warmth?: Database["public"]["Enums"]["warmth_level"] | null
         }
         Relationships: []
+      }
+      deals: {
+        Row: {
+          broker_id: string | null
+          company_id: string | null
+          created_at: string
+          customer_concentration: string | null
+          deal_ebitda: number | null
+          deal_revenue: number | null
+          ebitda_growth: number | null
+          ebitda_margin: number | null
+          entry_multiple: number | null
+          exit_multiple: number | null
+          expected_close_date: string | null
+          hold_period: number | null
+          id: string
+          interest_rate: number | null
+          leverage_pct: number | null
+          name: string
+          next_step: string | null
+          notes: string | null
+          nwc_notes: string | null
+          probability: number | null
+          recurring_rev_pct: number | null
+          retention_proxy: string | null
+          source: string | null
+          stage: Database["public"]["Enums"]["deal_sourcing_stage"]
+          structure_notes: string | null
+          updated_at: string
+          user_id: string
+          valuation_notes: string | null
+        }
+        Insert: {
+          broker_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          customer_concentration?: string | null
+          deal_ebitda?: number | null
+          deal_revenue?: number | null
+          ebitda_growth?: number | null
+          ebitda_margin?: number | null
+          entry_multiple?: number | null
+          exit_multiple?: number | null
+          expected_close_date?: string | null
+          hold_period?: number | null
+          id?: string
+          interest_rate?: number | null
+          leverage_pct?: number | null
+          name: string
+          next_step?: string | null
+          notes?: string | null
+          nwc_notes?: string | null
+          probability?: number | null
+          recurring_rev_pct?: number | null
+          retention_proxy?: string | null
+          source?: string | null
+          stage?: Database["public"]["Enums"]["deal_sourcing_stage"]
+          structure_notes?: string | null
+          updated_at?: string
+          user_id: string
+          valuation_notes?: string | null
+        }
+        Update: {
+          broker_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          customer_concentration?: string | null
+          deal_ebitda?: number | null
+          deal_revenue?: number | null
+          ebitda_growth?: number | null
+          ebitda_margin?: number | null
+          entry_multiple?: number | null
+          exit_multiple?: number | null
+          expected_close_date?: string | null
+          hold_period?: number | null
+          id?: string
+          interest_rate?: number | null
+          leverage_pct?: number | null
+          name?: string
+          next_step?: string | null
+          notes?: string | null
+          nwc_notes?: string | null
+          probability?: number | null
+          recurring_rev_pct?: number | null
+          retention_proxy?: string | null
+          source?: string | null
+          stage?: Database["public"]["Enums"]["deal_sourcing_stage"]
+          structure_notes?: string | null
+          updated_at?: string
+          user_id?: string
+          valuation_notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_broker_id_fkey"
+            columns: ["broker_id"]
+            isOneToOne: false
+            referencedRelation: "brokers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      decision_log: {
+        Row: {
+          created_at: string
+          deal_id: string
+          decision: string
+          decision_date: string
+          id: string
+          lessons_learned: string | null
+          next_action: string | null
+          rationale: string | null
+          reason_codes: string[] | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deal_id: string
+          decision?: string
+          decision_date?: string
+          id?: string
+          lessons_learned?: string | null
+          next_action?: string | null
+          rationale?: string | null
+          reason_codes?: string[] | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deal_id?: string
+          decision?: string
+          decision_date?: string
+          id?: string
+          lessons_learned?: string | null
+          next_action?: string | null
+          rationale?: string | null
+          reason_codes?: string[] | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decision_log_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      diligence_items: {
+        Row: {
+          category: string | null
+          comments: string | null
+          created_at: string
+          deal_id: string
+          doc_link: string | null
+          due_date: string | null
+          id: string
+          owner: string | null
+          sort_order: number | null
+          stage_template: string | null
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          comments?: string | null
+          created_at?: string
+          deal_id: string
+          doc_link?: string | null
+          due_date?: string | null
+          id?: string
+          owner?: string | null
+          sort_order?: number | null
+          stage_template?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          comments?: string | null
+          created_at?: string
+          deal_id?: string
+          doc_link?: string | null
+          due_date?: string | null
+          id?: string
+          owner?: string | null
+          sort_order?: number | null
+          stage_template?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "diligence_items_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       documents: {
         Row: {
@@ -483,6 +775,59 @@ export type Database = {
           },
         ]
       }
+      ic_memos: {
+        Row: {
+          business_overview: string | null
+          created_at: string
+          deal_id: string
+          id: string
+          key_questions: string | null
+          quality_assessment: string | null
+          recommendation: string | null
+          risks: string | null
+          thesis: string | null
+          updated_at: string
+          user_id: string
+          valuation_snapshot: string | null
+        }
+        Insert: {
+          business_overview?: string | null
+          created_at?: string
+          deal_id: string
+          id?: string
+          key_questions?: string | null
+          quality_assessment?: string | null
+          recommendation?: string | null
+          risks?: string | null
+          thesis?: string | null
+          updated_at?: string
+          user_id: string
+          valuation_snapshot?: string | null
+        }
+        Update: {
+          business_overview?: string | null
+          created_at?: string
+          deal_id?: string
+          id?: string
+          key_questions?: string | null
+          quality_assessment?: string | null
+          recommendation?: string | null
+          risks?: string | null
+          thesis?: string | null
+          updated_at?: string
+          user_id?: string
+          valuation_snapshot?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ic_memos_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       investor_deals: {
         Row: {
           commitment_amount: number | null
@@ -630,6 +975,86 @@ export type Database = {
         }
         Relationships: []
       }
+      request_items: {
+        Row: {
+          created_at: string
+          deal_id: string
+          file_path: string | null
+          id: string
+          item_name: string
+          notes: string | null
+          received_date: string | null
+          requested_date: string | null
+          status: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          deal_id: string
+          file_path?: string | null
+          id?: string
+          item_name: string
+          notes?: string | null
+          received_date?: string | null
+          requested_date?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          deal_id?: string
+          file_path?: string | null
+          id?: string
+          item_name?: string
+          notes?: string | null
+          received_date?: string | null
+          requested_date?: string | null
+          status?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_items_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_filters: {
+        Row: {
+          created_at: string
+          entity_type: string
+          filter_config: Json
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entity_type?: string
+          filter_config?: Json
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entity_type?: string
+          filter_config?: Json
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           company_id: string | null
@@ -756,6 +1181,18 @@ export type Database = {
         | "intermediary"
         | "advisor"
         | "river_guide"
+      deal_sourcing_stage:
+        | "screening"
+        | "contacted"
+        | "teaser"
+        | "cim"
+        | "ioi"
+        | "loi"
+        | "dd"
+        | "financing"
+        | "signing"
+        | "closed_won"
+        | "lost"
       deal_stage:
         | "identified"
         | "researching"
@@ -913,6 +1350,19 @@ export const Constants = {
         "intermediary",
         "advisor",
         "river_guide",
+      ],
+      deal_sourcing_stage: [
+        "screening",
+        "contacted",
+        "teaser",
+        "cim",
+        "ioi",
+        "loi",
+        "dd",
+        "financing",
+        "signing",
+        "closed_won",
+        "lost",
       ],
       deal_stage: [
         "identified",
