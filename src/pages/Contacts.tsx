@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useContacts, Contact } from '@/hooks/useContacts';
 import { Database } from '@/integrations/supabase/types';
-import { Plus, Search, Filter, Users, Star, Building2, Briefcase, User, Loader2 } from 'lucide-react';
+import { Plus, Search, Filter, Users, Star, Building2, Briefcase, User, Loader2, Upload } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ImportModal } from '@/components/import/ImportModal';
+import { useCreateContact } from '@/hooks/useContacts';
 
 type ContactType = Database['public']['Enums']['contact_type'];
 
@@ -24,11 +26,30 @@ export default function Contacts() {
   const { data: contacts = [], isLoading } = useContacts();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<ContactType | 'all'>('all');
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const createContact = useCreateContact();
   
   // Modal states
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+
+  const handleImportContacts = async (records: any[]) => {
+    for (const record of records) {
+      await createContact.mutateAsync({
+        name: record.name || 'Unknown',
+        email: record.email || null,
+        phone: record.phone || null,
+        organization: record.organization || null,
+        role: record.role || null,
+        geography: record.geography || null,
+        source: record.source || 'import',
+        contact_type: record.contact_type || 'investor',
+        tags: record.tags || [],
+        notes: record.notes || null,
+      });
+    }
+  };
 
   const filteredContacts = contacts.filter((contact) => {
     const matchesSearch =
@@ -65,10 +86,16 @@ export default function Contacts() {
         title="Contacts"
         description="Manage your relationships"
         actions={
-          <Button onClick={handleAddContact}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Contact
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+              <Upload className="w-4 h-4 mr-2" />
+              Import
+            </Button>
+            <Button onClick={handleAddContact}>
+              <Plus className="w-4 h-4 mr-2" />
+              Add Contact
+            </Button>
+          </div>
         }
       />
 
@@ -162,6 +189,12 @@ export default function Contacts() {
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
         contact={selectedContact}
+      />
+      <ImportModal
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+        entityType="contacts"
+        onImport={handleImportContacts}
       />
     </div>
   );

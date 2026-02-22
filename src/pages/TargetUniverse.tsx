@@ -10,7 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useCompanies, useCreateCompany, useUpdateCompany, useDeleteCompany } from '@/hooks/useCompanies';
 import { useSavedFilters, useCreateSavedFilter, useDeleteSavedFilter } from '@/hooks/useICMemo';
-import { Plus, Search, Filter, Download, Tag, Bookmark, Loader2, Building2, Trash2, X } from 'lucide-react';
+import { Plus, Search, Filter, Download, Tag, Bookmark, Loader2, Building2, Trash2, X, Upload } from 'lucide-react';
+import { ImportModal } from '@/components/import/ImportModal';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -38,6 +39,28 @@ export default function TargetUniverse() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkTag, setBulkTag] = useState('');
   const [showBulkTag, setShowBulkTag] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+
+  const handleImportCompanies = async (records: any[]) => {
+    for (const record of records) {
+      await createCompany.mutateAsync({
+        name: record.name || 'Unknown',
+        industry: record.industry || null,
+        geography: record.geography || null,
+        website: record.website || null,
+        description: record.description || null,
+        sic_code: record.sic_code || null,
+        naics_code: record.naics_code || null,
+        ownership_type: record.ownership_type || null,
+        revenue_band: record.revenue_band || null,
+        ebitda_band: record.ebitda_band || null,
+        employee_count: record.employee_count || null,
+        company_status: record.company_status || 'prospect',
+        company_source: record.company_source || 'import',
+        company_tags: record.company_tags || [],
+      } as any);
+    }
+  };
 
   // Form state
   const [form, setForm] = useState({
@@ -134,6 +157,9 @@ export default function TargetUniverse() {
         description="Search, filter, and manage your acquisition targets"
         actions={
           <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => setShowImport(true)}>
+              <Upload className="w-4 h-4 mr-1" /> Import
+            </Button>
             <Button variant="outline" size="sm" onClick={handleExportCSV} disabled={filtered.length === 0}>
               <Download className="w-4 h-4 mr-1" /> Export
             </Button>
@@ -374,6 +400,14 @@ export default function TargetUniverse() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Import Modal */}
+      <ImportModal
+        open={showImport}
+        onOpenChange={setShowImport}
+        entityType="companies"
+        onImport={handleImportCompanies}
+      />
     </div>
   );
 }
