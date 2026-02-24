@@ -1,77 +1,63 @@
 
-# Smart Follow-Up Reminders + Tasks Page
 
-## Overview
-Add two features: (1) a **notification bell** in the top bar showing overdue tasks and stale contacts/investors needing follow-up, and (2) a **dedicated Tasks page** for full task management with filtering, recurring reminders, and contact/investor linking.
+# Send Emails Through Your Connected Gmail/Microsoft Account
 
----
+## What This Changes
 
-## Feature 1: Notification Bell
+Currently, your app sends emails through **Resend** (a third-party email service) from `taslim@mungerlongview.com`. This update will instead send emails **directly through your connected Gmail or Microsoft account**, so:
 
-A bell icon added to the `MainLayout` header (top-right area) that shows a count badge of actionable items:
-- **Overdue tasks** (due date has passed, not completed)
-- **Stale contacts** (contacts with `last_interaction_at` older than 7 days, or null)
-- **Investors needing follow-up** (investors in active stages like `outreach_sent` or `follow_up` with no recent activity)
+- Emails appear in your actual **Sent folder**
+- Recipients see your real email address as the sender
+- Better deliverability and trust
+- Resend remains as a **fallback** if no provider is connected
 
-Clicking the bell opens a dropdown/popover listing these items grouped by type, with quick actions (mark complete, snooze, navigate to contact/investor).
+## What You Need To Do
 
-### Components
-- `NotificationBell.tsx` - Bell icon + badge + dropdown popover
-- `useNotifications.ts` - Hook combining overdue tasks, stale contacts, and stale investors into a unified notification list
-
----
-
-## Feature 2: Dedicated Tasks Page
-
-A full `/tasks` route with:
-- **Tabs**: All, Today, Upcoming, Overdue, Completed
-- **Task creation** with full fields: title, description, priority, due date, linked contact/investor/company, recurring option
-- **Filters**: By priority, by linked entity, by status
-- **Bulk actions**: Mark complete, delete
-- **Recurring tasks**: A `recurrence` field (none, daily, weekly, monthly) that auto-creates the next task when one is completed
-
-### Database Changes
-Add columns to the `tasks` table:
-- `description` (text, nullable) - task notes/details
-- `recurrence` (text, nullable, default null) - values: `daily`, `weekly`, `monthly`, or null
-- `investor_deal_id` (uuid, nullable) - link task to an investor
-
-### New Files
-- `src/pages/Tasks.tsx` - Full tasks page with tabs and filters
-- `src/components/tasks/TaskFormModal.tsx` - Create/edit task modal with all fields
-- `src/components/tasks/TaskRow.tsx` - Individual task row component
-- `src/components/tasks/DeleteTaskDialog.tsx` - Confirmation dialog
-- `src/components/layout/NotificationBell.tsx` - Bell dropdown component
-- `src/hooks/useNotifications.ts` - Unified notifications hook
-
-### Modified Files
-- `src/components/layout/MainLayout.tsx` - Add NotificationBell to header
-- `src/components/layout/Sidebar.tsx` - Add Tasks nav item
-- `src/App.tsx` - Add `/tasks` route
-- `src/hooks/useTasks.ts` - Update types for new columns
+After this update, you will need to **reconnect your Google and/or Microsoft account** in Settings, because the app currently only has "read" permission for your email. It will need "send" permission too. This is a one-time step — just click disconnect and reconnect in Settings.
 
 ---
 
 ## Technical Details
 
-### Database Migration
-```sql
-ALTER TABLE public.tasks
-  ADD COLUMN IF NOT EXISTS description text,
-  ADD COLUMN IF NOT EXISTS recurrence text,
-  ADD COLUMN IF NOT EXISTS investor_deal_id uuid;
-```
+### 1. Update Google OAuth Scopes
 
-### Notification Logic (useNotifications hook)
-```text
-1. Query tasks where due_date < today AND completed = false
-2. Query contacts where last_interaction_at < (now - 7 days) OR null
-3. Query investor_deals in active stages with updated_at < (now - 5 days)
-4. Merge into a single sorted list by urgency
-```
+**File:** `supabase/functions/google-oauth-init/index.ts`
 
-### Sidebar Addition
-Add a "Tasks" item with `CheckSquare` icon between "Calendar" and "Cap Table" in the navigation array.
+Add `https://www.googleapis.com/auth/gmail.send` to the requested scopes so the app can send emails on your behalf via Gmail.
 
-### Recurring Task Flow
-When a task with `recurrence` is marked complete, the `useToggleTaskComplete` mutation will also create a new task with the next due date calculated from the recurrence interval.
+### 2. Update Microsoft OAuth Scopes
+
+**File:** `supabase/functions/microsoft-oauth-init/index.ts`
+
+Add `Mail.Send` to the requested scopes for Microsoft Graph API sending.
+
+### 3. Rewrite the Send Email Function
+
+**File:** `supabase/functions/send-email/index.ts`
+
+The function will be updated to:
+
+1. Check if the user has an active **Google** integration -- if so, use the Gmail API (`POST https://gmail.googleapis.com/gmail/v1/users/me/messages/send`) to send the email as a properly formatted RFC 2822 message with base64url encoding.
+
+2. If no Google integration, check for an active **Microsoft** integration -- if so, use the Microsoft Graph API (`POST https://graph.microsoft.com/v1.0/me/sendMail`) to send.
+
+3. If **neither** provider is connected, fall back to **Resend** (current behavior), so email sending never breaks.
+
+4. Token refresh logic (already proven in the sync functions) will be reused to handle expired OAuth tokens.
+
+5. Attachment support will be preserved for all three paths (Gmail, Microsoft, Resend).
+
+6. The email record saved to the database will reflect which provider was used (`external_provider: 'google' | 'microsoft' | 'resend'`).
+
+### 4. No Database Changes Needed
+
+The existing `emails` table already has `external_provider` and `external_id` columns that will store the provider used and the message ID returned by Gmail/Microsoft.
+
+### 5. Files Modified
+
+| File | Change |
+|------|--------|
+| `supabase/functions/google-oauth-init/index.ts` | Add `gmail.send` scope |
+| `supabase/functions/microsoft-oauth-init/index.ts` | Add `Mail.Send` scope |
+| `supabase/functions/send-email/index.ts` | Rewrite to try Gmail API, then Microsoft Graph, then Resend fallback |
+
