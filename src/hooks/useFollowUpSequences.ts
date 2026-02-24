@@ -129,16 +129,64 @@ export function useInvestorEmails(investorDealId?: string, contactId?: string) {
   return useQuery({
     queryKey: ['investor_emails', user?.id, investorDealId, contactId],
     queryFn: async () => {
-      if (!user || !contactId) return [];
+      if (!user) return [];
 
-      const { data, error } = await supabase
-        .from('emails')
-        .select('*')
-        .eq('contact_id', contactId)
-        .order('created_at', { ascending: false });
+      // First try by contact_id
+      let emails: any[] = [];
+      if (contactId) {
+        const { data } = await supabase
+          .from('emails')
+          .select('*')
+          .eq('contact_id', contactId)
+          .order('created_at', { ascending: false });
+        if (data?.length) emails = data;
+      }
 
-      if (error) throw error;
-      return data;
+      // If no results by contact_id, try matching by contact email in to_emails
+      if (emails.length === 0 && contactId) {
+        const { data: contact } = await supabase
+          .from('contacts')
+          .select('email')
+          .eq('id', contactId)
+          .single();
+
+        if (contact?.email) {
+          const { data } = await supabase
+            .from('emails')
+            .select('*')
+            .contains('to_emails', [contact.email])
+            .order('created_at', { ascending: false });
+          if (data) emails = data;
+
+          // Also check from_email for inbound
+          if (emails.length === 0) {
+            const { data: inbound } = await supabase
+              .from('emails')
+              .select('*')
+              .eq('from_email', contact.email)
+              .order('created_at', { ascending: false });
+            if (inbound) emails = inbound;
+          }
+
+          // Merge and deduplicate
+          if (emails.length > 0) {
+            const { data: inbound } = await supabase
+              .from('emails')
+              .select('*')
+              .eq('from_email', contact.email)
+              .order('created_at', { ascending: false });
+            if (inbound?.length) {
+              const ids = new Set(emails.map((e: any) => e.id));
+              for (const e of inbound) {
+                if (!ids.has(e.id)) emails.push(e);
+              }
+              emails.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+            }
+          }
+        }
+      }
+
+      return emails;
     },
     enabled: !!user && !!contactId,
   });
