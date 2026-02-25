@@ -72,6 +72,99 @@ export type Database = {
           },
         ]
       }
+      brand_settings: {
+        Row: {
+          accent_color: string | null
+          apple_touch_icon_url: string | null
+          asset_version: number | null
+          background_color: string | null
+          created_at: string
+          default_thumbnail_url: string | null
+          email_header_logo_url: string | null
+          favicon_url: string | null
+          id: string
+          logo_dark_url: string | null
+          logo_full_url: string | null
+          logo_light_url: string | null
+          logo_mark_url: string | null
+          meta_description: string | null
+          mobile_app_icon_url: string | null
+          og_description: string | null
+          og_image_url: string | null
+          og_title: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          site_subtitle: string | null
+          site_title: string | null
+          text_color: string | null
+          twitter_description: string | null
+          twitter_image_url: string | null
+          twitter_title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accent_color?: string | null
+          apple_touch_icon_url?: string | null
+          asset_version?: number | null
+          background_color?: string | null
+          created_at?: string
+          default_thumbnail_url?: string | null
+          email_header_logo_url?: string | null
+          favicon_url?: string | null
+          id?: string
+          logo_dark_url?: string | null
+          logo_full_url?: string | null
+          logo_light_url?: string | null
+          logo_mark_url?: string | null
+          meta_description?: string | null
+          mobile_app_icon_url?: string | null
+          og_description?: string | null
+          og_image_url?: string | null
+          og_title?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          site_subtitle?: string | null
+          site_title?: string | null
+          text_color?: string | null
+          twitter_description?: string | null
+          twitter_image_url?: string | null
+          twitter_title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accent_color?: string | null
+          apple_touch_icon_url?: string | null
+          asset_version?: number | null
+          background_color?: string | null
+          created_at?: string
+          default_thumbnail_url?: string | null
+          email_header_logo_url?: string | null
+          favicon_url?: string | null
+          id?: string
+          logo_dark_url?: string | null
+          logo_full_url?: string | null
+          logo_light_url?: string | null
+          logo_mark_url?: string | null
+          meta_description?: string | null
+          mobile_app_icon_url?: string | null
+          og_description?: string | null
+          og_image_url?: string | null
+          og_title?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          site_subtitle?: string | null
+          site_title?: string | null
+          text_color?: string | null
+          twitter_description?: string | null
+          twitter_image_url?: string | null
+          twitter_title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       brokers: {
         Row: {
           contact_name: string

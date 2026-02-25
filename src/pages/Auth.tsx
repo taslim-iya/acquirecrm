@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { lovable } from '@/integrations/lovable/index';
+import { useBrandSettings } from '@/hooks/useBrandSettings';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,8 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TrendingUp, Loader2, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 
 export default function Auth() {
+  const { getSiteTitle, getMetaDescription, getAsset, settings } = useBrandSettings();
   const navigate = useNavigate();
   const { signIn, signUp } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -61,12 +64,12 @@ export default function Auth() {
         <div className="absolute inset-0" style={{ background: 'var(--gradient-primary)' }} />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(255,255,255,0.1)_0%,_transparent_50%)]" />
         <div className="relative z-10 flex flex-col justify-between p-12 text-white">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
-              <TrendingUp className="w-5 h-5" />
-            </div>
-            <span className="text-xl font-semibold tracking-tight">Acquirer CRM</span>
-          </div>
+          {/* Brand logo on login page */}
+          <BrandLogo
+            variant="light"
+            titleClassName="text-xl text-white"
+            iconClassName="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white"
+          />
           
           <div className="space-y-6">
             <h1 className="text-4xl font-semibold leading-tight tracking-tight">
@@ -96,14 +99,13 @@ export default function Auth() {
       {/* Right Panel - Auth Form */}
       <div className="flex-1 flex items-center justify-center p-8 bg-background">
         <div className="w-full max-w-md">
-          {/* Mobile Logo */}
+          {/* Mobile Logo on login page */}
           <div className="lg:hidden flex justify-center mb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-semibold tracking-tight">Acquirer CRM</span>
-            </div>
+            <BrandLogo
+              variant="full"
+              titleClassName="text-xl"
+              iconClassName="w-10 h-10 rounded-xl bg-primary text-primary-foreground"
+            />
           </div>
 
           <Card className="border-0 shadow-xl">
