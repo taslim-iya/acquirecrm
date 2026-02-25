@@ -2,6 +2,7 @@ import { useState, createContext, useContext, ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
+import { BrandLogo } from '@/components/brand/BrandLogo';
 import { useAppMode, AppMode } from '@/hooks/useAppMode';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -15,6 +16,7 @@ import {
   FileText,
   BarChart3,
   Settings,
+  ImageIcon,
   Sparkles,
   Calendar,
   LogOut,
@@ -58,6 +60,7 @@ const navigation: NavItem[] = [
 const bottomNav = [
   { name: 'AI Assistant', href: '/assistant', icon: Sparkles },
   { name: 'Notes', href: '/notes', icon: StickyNote },
+  { name: 'Brand Assets', href: '/brand', icon: ImageIcon },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
@@ -140,16 +143,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className="flex flex-col h-full" style={{ background: 'var(--gradient-sidebar)' }}>
+      {/* Brand logo in sidebar header */}
       <div className="h-16 flex items-center px-6 border-b border-sidebar-border/50">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/10">
-            <Building2 className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <span className="text-base font-semibold text-white tracking-tight">Acquirer CRM</span>
-            <p className="text-[10px] text-sidebar-foreground/60 uppercase tracking-wider font-medium">Search Fund Platform</p>
-          </div>
-        </div>
+        <BrandLogo
+          variant="light"
+          showSubtitle
+          titleClassName="text-base text-white"
+          subtitleClassName="text-sidebar-foreground/60"
+          iconClassName="bg-white/10 backdrop-blur-sm border border-white/10"
+        />
       </div>
 
       <ModeToggle />
@@ -253,12 +255,13 @@ export function MobileHeader() {
       <Button variant="ghost" size="icon" onClick={() => setOpen(true)} className="mr-3">
         <Menu className="w-5 h-5" />
       </Button>
-      <div className="flex items-center gap-2">
-        <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center">
-          <Building2 className="w-4 h-4 text-primary-foreground" />
-        </div>
-        <span className="font-semibold text-foreground">Acquirer CRM</span>
-      </div>
+      {/* Brand logo in mobile header */}
+      <BrandLogo
+        variant="mark"
+        showTitle
+        iconClassName="w-7 h-7 rounded-lg gradient-primary text-primary-foreground"
+        titleClassName="font-semibold text-foreground"
+      />
     </header>
   );
 }

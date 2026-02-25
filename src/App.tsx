@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AppModeProvider } from "@/hooks/useAppMode";
+import { BrandProvider } from "@/hooks/useBrandSettings";
+import { BrandHeadTags } from "@/components/brand/BrandHeadTags";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { MainLayout } from "@/components/layout/MainLayout";
 import Dashboard from "./pages/Dashboard";
@@ -29,6 +31,7 @@ import DealSourcingDeals from "./pages/DealSourcingDeals";
 import DealProfile from "./pages/DealProfile";
 import BrokersPage from "./pages/BrokersPage";
 import DealSourcingAnalytics from "./pages/DealSourcingAnalytics";
+import BrandAssets from "./pages/BrandAssets";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +39,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        <BrandProvider>
         <AppModeProvider>
+          <BrandHeadTags />
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -70,6 +75,7 @@ const App = () => (
                         <Route path="/tasks" element={<Tasks />} />
                         <Route path="/assistant" element={<Assistant />} />
                         <Route path="/settings" element={<Settings />} />
+                        <Route path="/brand" element={<BrandAssets />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </MainLayout>
@@ -79,6 +85,7 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </AppModeProvider>
+        </BrandProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
