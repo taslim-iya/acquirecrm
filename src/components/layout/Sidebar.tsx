@@ -99,9 +99,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <div className="h-16 flex items-center px-6 border-b border-sidebar-border/50">
         <BrandLogo
           variant="light"
-          showSubtitle
           titleClassName="text-base text-white"
-          subtitleClassName="text-sidebar-foreground/60"
           iconClassName="bg-white/10 backdrop-blur-sm border border-white/10"
         />
       </div>
