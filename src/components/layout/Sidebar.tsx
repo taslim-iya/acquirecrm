@@ -3,20 +3,17 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { BrandLogo } from '@/components/brand/BrandLogo';
-import { useAppMode, AppMode } from '@/hooks/useAppMode';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   Users,
   TrendingUp,
-  Building2,
   Mail,
   Inbox,
   FileText,
   BarChart3,
   Settings,
-  ImageIcon,
   Sparkles,
   Calendar,
   LogOut,
@@ -24,9 +21,6 @@ import {
   Menu,
   PieChart,
   CheckSquare,
-  Target,
-  Handshake,
-  Briefcase,
   Shield,
 } from 'lucide-react';
 import { useUnreadEmailCount } from '@/hooks/useEmails';
@@ -35,27 +29,19 @@ interface NavItem {
   name: string;
   href: string;
   icon: typeof LayoutDashboard;
-  modes?: AppMode[];
 }
 
 const navigation: NavItem[] = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Inbox', href: '/inbox', icon: Inbox },
   { name: 'Contacts', href: '/contacts', icon: Users },
-  // Fundraising
-  { name: 'Investors', href: '/investors', icon: TrendingUp, modes: ['fundraising'] },
-  { name: 'Cap Table', href: '/cap-table', icon: PieChart, modes: ['fundraising'] },
-  // Deal Sourcing
-  { name: 'Targets', href: '/targets', icon: Target, modes: ['deal-sourcing'] },
-  { name: 'Deals', href: '/ds-deals', icon: Briefcase, modes: ['deal-sourcing'] },
-  { name: 'Brokers', href: '/brokers', icon: Handshake, modes: ['deal-sourcing'] },
-  // Shared
+  { name: 'Investors', href: '/investors', icon: TrendingUp },
+  { name: 'Cap Table', href: '/cap-table', icon: PieChart },
   { name: 'Outreach', href: '/outreach', icon: Mail },
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Calendar', href: '/calendar', icon: Calendar },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
-  { name: 'Analytics', href: '/analytics', icon: BarChart3, modes: ['fundraising'] },
-  { name: 'Analytics', href: '/ds-analytics', icon: BarChart3, modes: ['deal-sourcing'] },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
 ];
 
 const bottomNav = [
@@ -86,49 +72,11 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
   );
 }
 
-function ModeToggle() {
-  const { mode, setMode } = useAppMode();
-
-  return (
-    <div className="px-3 py-3">
-      <div className="flex items-center gap-1 p-1 rounded-lg bg-sidebar-accent/40 border border-sidebar-border/50">
-        <button
-          onClick={() => setMode('fundraising')}
-          className={cn(
-            'flex-1 text-[11px] font-medium py-1.5 px-2 rounded-md transition-all duration-200 text-center',
-            mode === 'fundraising'
-              ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
-              : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
-          )}
-        >
-          Fundraising
-        </button>
-        <button
-          onClick={() => setMode('deal-sourcing')}
-          className={cn(
-            'flex-1 text-[11px] font-medium py-1.5 px-2 rounded-md transition-all duration-200 text-center',
-            mode === 'deal-sourcing'
-              ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
-              : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
-          )}
-        >
-          Deal Sourcing
-        </button>
-      </div>
-    </div>
-  );
-}
-
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { mode } = useAppMode();
   const { data: unreadCount } = useUnreadEmailCount();
-
-  const filteredNav = navigation.filter(
-    (item) => !item.modes || item.modes.includes(mode)
-  );
 
   const handleSignOut = async () => {
     await signOut();
@@ -158,10 +106,8 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         />
       </div>
 
-      <ModeToggle />
-
-      <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
-        {filteredNav.map((item) => {
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {navigation.map((item) => {
           const isActive = location.pathname === item.href;
           return (
             <Link
@@ -246,7 +192,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-sidebar-foreground truncate">{getDisplayName()}</p>
-            <p className="text-xs text-sidebar-foreground/60 truncate">Solo Searcher</p>
+            <p className="text-xs text-sidebar-foreground/60 truncate">{user?.email}</p>
           </div>
           <button onClick={handleSignOut} className="p-1.5 rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors" title="Sign out">
             <LogOut className="w-4 h-4" />
@@ -283,7 +229,6 @@ export function MobileHeader() {
       <Button variant="ghost" size="icon" onClick={() => setOpen(true)} className="mr-3">
         <Menu className="w-5 h-5" />
       </Button>
-      {/* Brand logo in mobile header */}
       <BrandLogo
         variant="mark"
         showTitle
