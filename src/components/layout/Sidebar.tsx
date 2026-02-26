@@ -42,14 +42,11 @@ const navigation: NavItem[] = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Inbox', href: '/inbox', icon: Inbox },
   { name: 'Contacts', href: '/contacts', icon: Users },
-  // Fundraising
   { name: 'Investors', href: '/investors', icon: TrendingUp, modes: ['fundraising'] },
   { name: 'Cap Table', href: '/cap-table', icon: PieChart, modes: ['fundraising'] },
-  // Deal Sourcing
   { name: 'Targets', href: '/targets', icon: Target, modes: ['deal-sourcing'] },
   { name: 'Deals', href: '/ds-deals', icon: Briefcase, modes: ['deal-sourcing'] },
   { name: 'Brokers', href: '/brokers', icon: Handshake, modes: ['deal-sourcing'] },
-  // Shared
   { name: 'Outreach', href: '/outreach', icon: Mail },
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Calendar', href: '/calendar', icon: Calendar },
@@ -90,15 +87,15 @@ function ModeToggle() {
   const { mode, setMode } = useAppMode();
 
   return (
-    <div className="px-3 py-3">
-      <div className="flex items-center gap-1 p-1 rounded-lg bg-sidebar-accent/40 border border-sidebar-border/50">
+    <div className="px-4 py-3">
+      <div className="flex items-center gap-1 p-1 rounded-full bg-secondary border border-border">
         <button
           onClick={() => setMode('fundraising')}
           className={cn(
-            'flex-1 text-[11px] font-medium py-1.5 px-2 rounded-md transition-all duration-200 text-center',
+            'flex-1 text-[11px] font-medium py-1.5 px-3 rounded-full transition-all duration-200 text-center',
             mode === 'fundraising'
-              ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
-              : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
           )}
         >
           Fundraising
@@ -106,10 +103,10 @@ function ModeToggle() {
         <button
           onClick={() => setMode('deal-sourcing')}
           className={cn(
-            'flex-1 text-[11px] font-medium py-1.5 px-2 rounded-md transition-all duration-200 text-center',
+            'flex-1 text-[11px] font-medium py-1.5 px-3 rounded-full transition-all duration-200 text-center',
             mode === 'deal-sourcing'
-              ? 'bg-sidebar-primary text-sidebar-primary-foreground shadow-sm'
-              : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
+              ? 'bg-primary text-primary-foreground shadow-sm'
+              : 'text-muted-foreground hover:text-foreground'
           )}
         >
           Deal Sourcing
@@ -146,21 +143,21 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ background: 'var(--gradient-sidebar)' }}>
-      {/* Brand logo in sidebar header */}
-      <div className="h-16 flex items-center px-6 border-b border-sidebar-border/50">
+    <div className="flex flex-col h-full bg-sidebar">
+      {/* Brand */}
+      <div className="h-16 flex items-center px-5 border-b border-sidebar-border">
         <BrandLogo
           variant="light"
           showSubtitle
-          titleClassName="text-base text-white"
-          subtitleClassName="text-sidebar-foreground/60"
-          iconClassName="bg-white/10 backdrop-blur-sm border border-white/10"
+          titleClassName="text-base text-foreground font-semibold"
+          subtitleClassName="text-muted-foreground"
+          iconClassName="bg-primary text-primary-foreground rounded-xl"
         />
       </div>
 
       <ModeToggle />
 
-      <nav className="flex-1 px-3 py-2 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-3 py-1 space-y-0.5 overflow-y-auto">
         {filteredNav.map((item) => {
           const isActive = location.pathname === item.href;
           return (
@@ -169,27 +166,30 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               to={item.href}
               onClick={() => onNavigate?.()}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150',
                 isActive
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-primary'
               )}
             >
-              <item.icon className={cn('w-5 h-5', isActive && 'text-sidebar-primary')} />
+              <item.icon className="w-[18px] h-[18px]" />
               {item.name}
               {item.name === 'Inbox' && unreadCount ? (
-                <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-destructive text-destructive-foreground font-medium min-w-[18px] text-center">
+                <span className={cn(
+                  "ml-auto text-[10px] px-1.5 py-0.5 rounded-full font-medium min-w-[18px] text-center",
+                  isActive
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-destructive text-destructive-foreground"
+                )}>
                   {unreadCount > 99 ? '99+' : unreadCount}
                 </span>
-              ) : isActive ? (
-                <div className="ml-auto w-1.5 h-1.5 rounded-full bg-sidebar-primary" />
               ) : null}
             </Link>
           );
         })}
       </nav>
 
-      <div className="px-3 py-4 border-t border-sidebar-border space-y-1">
+      <div className="px-3 py-3 border-t border-sidebar-border space-y-0.5">
         {bottomNav.map((item) => {
           const isActive = location.pathname === item.href;
           return (
@@ -198,25 +198,31 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
               to={item.href}
               onClick={() => onNavigate?.()}
               className={cn(
-                'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150',
                 isActive
-                  ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                  : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
-                item.name === 'AI Assistant' && 'group'
+                  ? 'bg-primary text-primary-foreground'
+                  : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-primary'
               )}
             >
-              <item.icon className={cn('w-5 h-5', isActive && 'text-sidebar-primary', item.name === 'AI Assistant' && 'group-hover:text-sidebar-primary transition-colors')} />
+              <item.icon className="w-[18px] h-[18px]" />
               {item.name}
               {item.name === 'AI Assistant' && (
-                <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-sidebar-primary/20 text-sidebar-primary font-medium">NEW</span>
+                <span className={cn(
+                  "ml-auto text-[10px] px-1.5 py-0.5 rounded-full font-medium",
+                  isActive
+                    ? "bg-primary-foreground/20 text-primary-foreground"
+                    : "bg-primary/10 text-primary"
+                )}>
+                  NEW
+                </span>
               )}
             </Link>
           );
         })}
 
-        {/* Admin section */}
-        <div className="pt-2 mt-2 border-t border-sidebar-border/50">
-          <p className="px-3 py-1 text-[10px] uppercase tracking-wider font-semibold text-sidebar-foreground/40">Admin</p>
+        {/* Admin */}
+        <div className="pt-2 mt-2 border-t border-sidebar-border">
+          <p className="px-3 py-1.5 text-[10px] uppercase tracking-widest font-semibold text-muted-foreground/60">Admin</p>
           {adminNav.map((item) => {
             const isActive = location.pathname === item.href;
             return (
@@ -225,13 +231,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                 to={item.href}
                 onClick={() => onNavigate?.()}
                 className={cn(
-                  'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                  'flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150',
                   isActive
-                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                    : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-primary'
                 )}
               >
-                <item.icon className={cn('w-5 h-5', isActive && 'text-sidebar-primary')} />
+                <item.icon className="w-[18px] h-[18px]" />
                 {item.name}
               </Link>
             );
@@ -239,16 +245,21 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
         </div>
       </div>
 
-      <div className="px-3 py-4 border-t border-sidebar-border">
+      {/* User */}
+      <div className="px-3 py-3 border-t border-sidebar-border">
         <div className="flex items-center gap-3 px-3 py-2">
-          <div className="w-8 h-8 rounded-full bg-sidebar-accent flex items-center justify-center text-sm font-medium text-sidebar-accent-foreground">
+          <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">
             {getUserInitials()}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-sidebar-foreground truncate">{getDisplayName()}</p>
-            <p className="text-xs text-sidebar-foreground/60 truncate">Solo Searcher</p>
+            <p className="text-sm font-medium text-foreground truncate">{getDisplayName()}</p>
+            <p className="text-xs text-muted-foreground truncate">Solo Searcher</p>
           </div>
-          <button onClick={handleSignOut} className="p-1.5 rounded-md text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors" title="Sign out">
+          <button
+            onClick={handleSignOut}
+            className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors"
+            title="Sign out"
+          >
             <LogOut className="w-4 h-4" />
           </button>
         </div>
@@ -259,7 +270,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
 export function Sidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar hidden lg:flex flex-col">
+    <aside className="fixed inset-y-0 left-0 z-50 w-64 border-r border-sidebar-border hidden lg:flex flex-col">
       <SidebarContent />
     </aside>
   );
@@ -283,11 +294,10 @@ export function MobileHeader() {
       <Button variant="ghost" size="icon" onClick={() => setOpen(true)} className="mr-3">
         <Menu className="w-5 h-5" />
       </Button>
-      {/* Brand logo in mobile header */}
       <BrandLogo
         variant="mark"
         showTitle
-        iconClassName="w-7 h-7 rounded-lg gradient-primary text-primary-foreground"
+        iconClassName="w-7 h-7 rounded-xl bg-primary text-primary-foreground"
         titleClassName="font-semibold text-foreground"
       />
     </header>
