@@ -98,8 +98,8 @@ export default function Dashboard() {
       <div className="mt-6 flex items-center gap-4 text-sm text-muted-foreground border-t pt-4">
         <div className="flex items-center gap-2">
           <Mail className="w-4 h-4" />
-          <a href="mailto:support@acquirecrm.mungerlongview.com" className="hover:text-foreground transition-colors">
-            support@acquirecrm.mungerlongview.com
+           <a href="mailto:taslim@mungerlongview.com" className="hover:text-foreground transition-colors">
+             taslim@mungerlongview.com
           </a>
         </div>
         <span className="text-border">|</span>

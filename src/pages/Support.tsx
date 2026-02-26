@@ -100,7 +100,7 @@ export default function Support() {
 
       <div className="mt-4 mb-3 flex items-center gap-2 text-sm text-muted-foreground">
         <Mail className="w-4 h-4" />
-        <span>You can also reach us at <a href="mailto:support@acquirecrm.mungerlongview.com" className="text-primary underline underline-offset-2">support@acquirecrm.mungerlongview.com</a></span>
+        <span>You can also reach us at <a href="mailto:taslim@mungerlongview.com" className="text-primary underline underline-offset-2">taslim@mungerlongview.com</a></span>
       </div>
 
       <Card className="flex-1 flex flex-col min-h-0 overflow-hidden">
