@@ -241,9 +241,21 @@ export default function Settings() {
 
   const handleConnectGoogle = async () => {
     setIsConnecting(true);
+    // Open popup synchronously from click to avoid browser popup blocker
+    const width = 500;
+    const height = 600;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    const popup = window.open(
+      'about:blank',
+      'googleOAuthPopup',
+      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
+    );
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        popup?.close();
         toast.error('Please sign in first');
         return;
       }
@@ -262,10 +274,30 @@ export default function Settings() {
       const data = await response.json();
 
       if (!response.ok) {
+        popup?.close();
         throw new Error(data.error || 'Failed to start OAuth');
       }
 
-      openOAuthPopup(data.url, 'google');
+      if (!popup || popup.closed) {
+        toast.error('Please allow popups for this site to connect your account');
+        setIsConnecting(false);
+        return;
+      }
+
+      popup.location.href = data.url;
+
+      // Poll for popup close
+      const interval = setInterval(() => {
+        try {
+          if (popup.closed) {
+            clearInterval(interval);
+            setIsConnecting(false);
+            queryClient.invalidateQueries({ queryKey: ['user_integrations'] });
+          }
+        } catch {
+          // Cross-origin error expected
+        }
+      }, 500);
     } catch (error) {
       console.error('OAuth init error:', error);
       toast.error('Failed to connect Google', {
@@ -277,9 +309,20 @@ export default function Settings() {
 
   const handleConnectMicrosoft = async () => {
     setIsConnecting(true);
+    const width = 500;
+    const height = 600;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    const popup = window.open(
+      'about:blank',
+      'microsoftOAuthPopup',
+      `width=${width},height=${height},left=${left},top=${top},toolbar=no,menubar=no`
+    );
+
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
+        popup?.close();
         toast.error('Please sign in first');
         return;
       }
@@ -298,10 +341,29 @@ export default function Settings() {
       const data = await response.json();
 
       if (!response.ok) {
+        popup?.close();
         throw new Error(data.error || 'Failed to start Microsoft OAuth');
       }
 
-      openOAuthPopup(data.url, 'microsoft');
+      if (!popup || popup.closed) {
+        toast.error('Please allow popups for this site to connect your account');
+        setIsConnecting(false);
+        return;
+      }
+
+      popup.location.href = data.url;
+
+      const interval = setInterval(() => {
+        try {
+          if (popup.closed) {
+            clearInterval(interval);
+            setIsConnecting(false);
+            queryClient.invalidateQueries({ queryKey: ['user_integrations'] });
+          }
+        } catch {
+          // Cross-origin error expected
+        }
+      }, 500);
     } catch (error) {
       console.error('Microsoft OAuth init error:', error);
       toast.error('Failed to connect Microsoft', {
