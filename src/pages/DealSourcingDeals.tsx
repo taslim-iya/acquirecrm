@@ -155,7 +155,7 @@ export default function DealSourcingDeals() {
                   <p className="text-[11px] text-muted-foreground/50 text-center py-6">No deals</p>
                 ) : (
                   stageDeals.map(deal => (
-                    <a key={deal.id} href={`/deal/${deal.id}`} className="block">
+                    <a key={deal.id} href={`/deals/${deal.id}`} className="block">
                       <Card className="goldman-card cursor-pointer p-3">
                         <p className="text-sm font-medium text-foreground truncate">{deal.name}</p>
                         {deal.companies?.name && (
@@ -201,7 +201,7 @@ export default function DealSourcingDeals() {
                 filtered.map(deal => (
                   <TableRow key={deal.id} className="group">
                     <TableCell>
-                      <a href={`/deal/${deal.id}`} className="font-medium text-foreground hover:text-primary">{deal.name}</a>
+                      <a href={`/deals/${deal.id}`} className="font-medium text-foreground hover:text-primary">{deal.name}</a>
                     </TableCell>
                     <TableCell className="text-muted-foreground">{deal.companies?.name || '—'}</TableCell>
                     <TableCell>
