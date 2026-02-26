@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,11 +32,17 @@ async function streamChat({
   onError: (error: string) => void;
 }) {
   try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      onError('Not authenticated. Please log in.');
+      return;
+    }
+
     const resp = await fetch(CHAT_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        Authorization: `Bearer ${session.access_token}`,
       },
       body: JSON.stringify({ messages }),
     });

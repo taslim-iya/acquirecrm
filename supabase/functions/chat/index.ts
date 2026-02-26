@@ -1,104 +1,116 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { messages } = await req.json();
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader?.startsWith("Bearer ")) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
-    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY");
-    
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Get user from auth header and fetch ALL data for context
-    const authHeader = req.headers.get("Authorization");
-    let dataContext = "";
-    
-    if (authHeader && SUPABASE_URL && SUPABASE_ANON_KEY) {
-      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        global: { headers: { Authorization: authHeader } }
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      global: { headers: { Authorization: authHeader } },
+    });
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // Fetch all data in parallel
-        const [
-          profileRes,
-          investorsRes,
-          companiesRes,
-          contactsRes,
-          dealsRes,
-          tasksRes,
-          emailsRes,
-          calendarRes,
-          notesRes,
-          activitiesRes,
-          updatesRes,
-        ] = await Promise.all([
-          supabase.from("profiles").select("*").eq("user_id", user.id).maybeSingle(),
-          supabase.from("investor_deals").select("*").order("updated_at", { ascending: false }).limit(50),
-          supabase.from("companies").select("*").order("updated_at", { ascending: false }).limit(50),
-          supabase.from("contacts").select("*").order("updated_at", { ascending: false }).limit(50),
-          supabase.from("deals").select("*").order("updated_at", { ascending: false }).limit(50),
-          supabase.from("tasks").select("*").order("created_at", { ascending: false }).limit(30),
-          supabase.from("emails").select("id, subject, from_email, from_name, to_emails, direction, send_status, received_at, open_count, body_preview").order("received_at", { ascending: false }).limit(30),
-          supabase.from("calendar_events").select("*").gte("start_time", new Date().toISOString()).order("start_time", { ascending: true }).limit(20),
-          supabase.from("notes").select("*").order("updated_at", { ascending: false }).limit(20),
-          supabase.from("activities").select("*").order("created_at", { ascending: false }).limit(20),
-          supabase.from("investor_updates").select("*").order("created_at", { ascending: false }).limit(10),
-        ]);
+    }
 
-        const profile = profileRes.data;
-        const investors = investorsRes.data || [];
-        const companies = companiesRes.data || [];
-        const contacts = contactsRes.data || [];
-        const deals = dealsRes.data || [];
-        const tasks = tasksRes.data || [];
-        const emails = emailsRes.data || [];
-        const calendar = calendarRes.data || [];
-        const notes = notesRes.data || [];
-        const activities = activitiesRes.data || [];
-        const updates = updatesRes.data || [];
+    const userId = claimsData.claims.sub as string;
+    const userEmail = claimsData.claims.email as string;
 
-        // Build investor pipeline summary
-        const investorsByStage: Record<string, number> = {};
-        let totalCommitted = 0;
-        investors.forEach((inv: any) => {
-          investorsByStage[inv.stage] = (investorsByStage[inv.stage] || 0) + 1;
-          if (['committed', 'closed'].includes(inv.stage) && inv.commitment_amount) {
-            totalCommitted += Number(inv.commitment_amount);
-          }
-        });
+    const { messages } = await req.json();
 
-        // Build deal pipeline summary
-        const dealsByStage: Record<string, number> = {};
-        deals.forEach((d: any) => {
-          dealsByStage[d.stage] = (dealsByStage[d.stage] || 0) + 1;
-        });
+    // Fetch all data in parallel
+    const [
+      profileRes,
+      investorsRes,
+      companiesRes,
+      contactsRes,
+      dealsRes,
+      tasksRes,
+      emailsRes,
+      calendarRes,
+      notesRes,
+      activitiesRes,
+      updatesRes,
+    ] = await Promise.all([
+      supabase.from("profiles").select("*").eq("user_id", userId).maybeSingle(),
+      supabase.from("investor_deals").select("*").order("updated_at", { ascending: false }).limit(50),
+      supabase.from("companies").select("*").order("updated_at", { ascending: false }).limit(50),
+      supabase.from("contacts").select("*").order("updated_at", { ascending: false }).limit(50),
+      supabase.from("deals").select("*").order("updated_at", { ascending: false }).limit(50),
+      supabase.from("tasks").select("*").order("created_at", { ascending: false }).limit(30),
+      supabase.from("emails").select("id, subject, from_email, from_name, to_emails, direction, send_status, received_at, open_count, body_preview").order("received_at", { ascending: false }).limit(30),
+      supabase.from("calendar_events").select("*").gte("start_time", new Date().toISOString()).order("start_time", { ascending: true }).limit(20),
+      supabase.from("notes").select("*").order("updated_at", { ascending: false }).limit(20),
+      supabase.from("activities").select("*").order("created_at", { ascending: false }).limit(20),
+      supabase.from("investor_updates").select("*").order("created_at", { ascending: false }).limit(10),
+    ]);
 
-        // Build task summary
-        const overdueTasks = tasks.filter((t: any) => !t.completed && t.due_date && new Date(t.due_date) < new Date());
-        const pendingTasks = tasks.filter((t: any) => !t.completed);
+    const profile = profileRes.data;
+    const investors = investorsRes.data || [];
+    const companies = companiesRes.data || [];
+    const contacts = contactsRes.data || [];
+    const deals = dealsRes.data || [];
+    const tasks = tasksRes.data || [];
+    const emails = emailsRes.data || [];
+    const calendar = calendarRes.data || [];
+    const notes = notesRes.data || [];
+    const activities = activitiesRes.data || [];
+    const updates = updatesRes.data || [];
 
-        dataContext = `
+    // Build investor pipeline summary
+    const investorsByStage: Record<string, number> = {};
+    let totalCommitted = 0;
+    investors.forEach((inv: any) => {
+      investorsByStage[inv.stage] = (investorsByStage[inv.stage] || 0) + 1;
+      if (['committed', 'closed'].includes(inv.stage) && inv.commitment_amount) {
+        totalCommitted += Number(inv.commitment_amount);
+      }
+    });
+
+    // Build deal pipeline summary
+    const dealsByStage: Record<string, number> = {};
+    deals.forEach((d: any) => {
+      dealsByStage[d.stage] = (dealsByStage[d.stage] || 0) + 1;
+    });
+
+    // Build task summary
+    const overdueTasks = tasks.filter((t: any) => !t.completed && t.due_date && new Date(t.due_date) < new Date());
+    const pendingTasks = tasks.filter((t: any) => !t.completed);
+
+    const dataContext = `
 
 **User Profile:**
 - Name: ${profile?.display_name || "Not set"}
 - Company: ${profile?.company_name || "Not set"}
 - Fundraising Goal: ${profile?.currency || "USD"} ${profile?.fundraising_goal?.toLocaleString() || "Not set"}
-- Email: ${user.email || "N/A"}
+- Email: ${userEmail || "N/A"}
 
 **Investor Pipeline (${investors.length} total):**
 ${Object.entries(investorsByStage).map(([stage, count]) => `- ${stage}: ${count}`).join("\n")}
@@ -132,8 +144,6 @@ ${activities.slice(0, 10).map((a: any) => `- ${a.activity_type}: ${a.title}`).jo
 
 **Investor Updates Sent:** ${updates.filter((u: any) => u.status === 'sent').length} sent, ${updates.filter((u: any) => u.status === 'draft').length} drafts
 `;
-      }
-    }
 
     const systemPrompt = `You are an intelligent AI assistant for Acquire CRM, a platform built for acquisition entrepreneurs. You have FULL ACCESS to the user's data and can make decisions, suggestions, and draft content based on real data — the user does NOT need to give you information manually.
 
