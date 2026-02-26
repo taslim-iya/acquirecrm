@@ -20,26 +20,28 @@ Deno.serve(async (req) => {
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
       );
 
-      // Update open tracking atomically
       const now = new Date().toISOString();
-      await supabase.rpc("increment_email_open", { p_tracking_id: trackingId, p_now: now }).catch(() => {
-        // Fallback: direct update if RPC doesn't exist yet
-        return supabase
-          .from("emails")
-          .update({
-            open_count: 1, // Will be incremented properly via RPC
-            first_opened_at: now,
-            last_opened_at: now,
-          })
-          .eq("tracking_id", trackingId)
-          .is("first_opened_at", null);
-      });
 
-      // Also update for subsequent opens
-      await supabase
+      // Get current email record
+      const { data: email } = await supabase
         .from("emails")
-        .update({ last_opened_at: now })
-        .eq("tracking_id", trackingId);
+        .select("id, open_count, first_opened_at")
+        .eq("tracking_id", trackingId)
+        .maybeSingle();
+
+      if (email) {
+        const updates: Record<string, unknown> = {
+          open_count: (email.open_count || 0) + 1,
+          last_opened_at: now,
+        };
+        if (!email.first_opened_at) {
+          updates.first_opened_at = now;
+        }
+        await supabase
+          .from("emails")
+          .update(updates)
+          .eq("id", email.id);
+      }
     }
   } catch (e) {
     console.error("Track error:", e);
