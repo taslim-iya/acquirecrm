@@ -89,7 +89,18 @@ export default function Documents() {
   const handleFileSelect = useCallback(async (files: FileList | null) => {
     if (!files || files.length === 0) return;
 
+    const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
     for (const file of Array.from(files)) {
+      if (file.size > MAX_FILE_SIZE) {
+        const { toast } = await import('@/hooks/use-toast');
+        toast({
+          title: 'File too large',
+          description: `${file.name} exceeds the 50MB limit (${(file.size / 1024 / 1024).toFixed(1)}MB)`,
+          variant: 'destructive',
+        });
+        continue;
+      }
       const documentType = getDocumentTypeFromFile(file);
       await uploadDocument.mutateAsync({ file, documentType });
     }
