@@ -32,6 +32,7 @@ import DealProfile from "./pages/DealProfile";
 import BrokersPage from "./pages/BrokersPage";
 import DealSourcingAnalytics from "./pages/DealSourcingAnalytics";
 import BrandAssets from "./pages/BrandAssets";
+import AdminAnalytics from "./pages/AdminAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
                         <Route path="/assistant" element={<Assistant />} />
                         <Route path="/settings" element={<Settings />} />
                         <Route path="/brand" element={<BrandAssets />} />
+                        <Route path="/admin-analytics" element={<AdminAnalytics />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </MainLayout>

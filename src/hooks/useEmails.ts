@@ -17,6 +17,11 @@ export interface Email {
   external_id: string | null;
   external_provider: string | null;
   created_at: string;
+  direction: string;
+  open_count: number;
+  first_opened_at: string | null;
+  last_opened_at: string | null;
+  tracking_id: string | null;
 }
 
 export function useEmails(limit = 20) {

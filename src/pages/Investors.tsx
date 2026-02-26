@@ -4,10 +4,11 @@ import { InvestorCard } from '@/components/pipeline/InvestorCard';
 import { InvestorFormModal } from '@/components/pipeline/InvestorFormModal';
 import { DeleteInvestorDialog } from '@/components/pipeline/DeleteInvestorDialog';
 import { CommitmentAmountModal } from '@/components/pipeline/CommitmentAmountModal';
+import { InvestorUpdateModal } from '@/components/updates/InvestorUpdateModal';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useInvestorDeals, InvestorDeal, InvestorStage, useUpdateInvestorStage, useUpdateInvestorStageWithCommitment } from '@/hooks/useInvestorDeals';
-import { Plus, Search, Filter, Loader2, TrendingUp } from 'lucide-react';
+import { Plus, Search, Filter, Loader2, TrendingUp, FileText } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -69,6 +70,7 @@ export default function Investors() {
   // Modal states
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [selectedInvestor, setSelectedInvestor] = useState<InvestorDeal | null>(null);
   const [defaultStage, setDefaultStage] = useState<InvestorStage>('not_contacted');
 
@@ -170,10 +172,16 @@ export default function Investors() {
               </div>
             </div>
           </div>
-          <Button onClick={() => handleAddInvestor()} className="gradient-primary shadow-md hover:shadow-lg transition-shadow">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Investor
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setIsUpdateOpen(true)}>
+              <FileText className="w-4 h-4 mr-2" />
+              Send Update
+            </Button>
+            <Button onClick={() => handleAddInvestor()} className="gradient-primary shadow-md hover:shadow-lg transition-shadow">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Investor
+            </Button>
+          </div>
         </div>
 
         {/* Search Bar */}
@@ -284,6 +292,8 @@ export default function Investors() {
         onConfirm={handleDragCommitmentConfirm}
         isLoading={updateStageWithCommitment.isPending}
       />
+
+      <InvestorUpdateModal open={isUpdateOpen} onOpenChange={setIsUpdateOpen} />
     </div>
   );
 }

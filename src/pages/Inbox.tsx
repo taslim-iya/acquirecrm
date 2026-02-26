@@ -13,6 +13,7 @@ import {
   Send as SendIcon,
   ArrowLeft,
   Inbox as InboxIcon,
+  Eye,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -32,8 +33,7 @@ export default function Inbox() {
   };
 
   const getDirection = (email: Email): string => {
-    // Use the direction column if available via raw data, otherwise infer
-    return (email as any).direction || 'inbound';
+    return email.direction || 'inbound';
   };
 
   return (
@@ -109,7 +109,10 @@ export default function Inbox() {
                             : email.from_name || email.from_email || 'Unknown'}
                         </span>
                         {email.received_at && (
-                          <span className="text-xs text-muted-foreground shrink-0">
+                          <span className="text-xs text-muted-foreground shrink-0 flex items-center gap-1">
+                            {dir === 'outbound' && email.open_count > 0 && (
+                              <Eye className="w-3 h-3 text-success" />
+                            )}
                             {format(new Date(email.received_at), 'MMM d')}
                           </span>
                         )}
@@ -170,9 +173,17 @@ export default function Inbox() {
                     )}
                   </p>
                 </div>
-                <Badge variant="secondary" className="shrink-0">
-                  {getDirection(selectedEmail) === 'outbound' ? 'Sent' : 'Received'}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="shrink-0">
+                    {getDirection(selectedEmail) === 'outbound' ? 'Sent' : 'Received'}
+                  </Badge>
+                  {getDirection(selectedEmail) === 'outbound' && selectedEmail.open_count > 0 && (
+                    <Badge variant="default" className="shrink-0 bg-success text-success-foreground">
+                      <Eye className="w-3 h-3 mr-1" />
+                      Opened {selectedEmail.open_count}×
+                    </Badge>
+                  )}
+                </div>
               </div>
               <ScrollArea className="flex-1 p-6">
                 <div
