@@ -79,20 +79,9 @@ export default function Auth() {
             <p className="text-lg text-white/70 max-w-md leading-relaxed">
               Manage your investor pipeline, track target companies, and close deals faster with our purpose-built platform.
             </p>
-            <div className="flex items-center gap-8 pt-4">
-              <div>
-                <p className="text-3xl font-semibold">500+</p>
-                <p className="text-sm text-white/60">Active Searchers</p>
-              </div>
-              <div className="w-px h-12 bg-white/20" />
-              <div>
-                <p className="text-3xl font-semibold">$2B+</p>
-                <p className="text-sm text-white/60">Deals Tracked</p>
-              </div>
-            </div>
           </div>
 
-          <p className="text-sm text-white/40">© 2025 Acquire CRM. Built for searchers, by searchers.</p>
+          <p className="text-sm text-white/40">© 2026 Acquire CRM. Built for searchers, by searchers.</p>
         </div>
       </div>
 
