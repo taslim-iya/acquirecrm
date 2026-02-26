@@ -23,7 +23,8 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Acquire CRM <onboarding@resend.dev>',
+        from: `${userEmail || 'Support User'} <onboarding@resend.dev>`,
+        reply_to: userEmail || undefined,
         to: ['taslim@mungerlongview.com'],
         subject: `New Support Message from ${userEmail || 'a user'}`,
         html: `
