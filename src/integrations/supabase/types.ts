@@ -808,16 +808,20 @@ export type Database = {
           direction: string
           external_id: string | null
           external_provider: string | null
+          first_opened_at: string | null
           from_email: string | null
           from_name: string | null
           id: string
           is_read: boolean | null
+          last_opened_at: string | null
+          open_count: number | null
           received_at: string | null
           scheduled_send_at: string | null
           send_status: string
           subject: string | null
           thread_id: string | null
           to_emails: string[] | null
+          tracking_id: string | null
           user_id: string
         }
         Insert: {
@@ -827,16 +831,20 @@ export type Database = {
           direction?: string
           external_id?: string | null
           external_provider?: string | null
+          first_opened_at?: string | null
           from_email?: string | null
           from_name?: string | null
           id?: string
           is_read?: boolean | null
+          last_opened_at?: string | null
+          open_count?: number | null
           received_at?: string | null
           scheduled_send_at?: string | null
           send_status?: string
           subject?: string | null
           thread_id?: string | null
           to_emails?: string[] | null
+          tracking_id?: string | null
           user_id: string
         }
         Update: {
@@ -846,16 +854,20 @@ export type Database = {
           direction?: string
           external_id?: string | null
           external_provider?: string | null
+          first_opened_at?: string | null
           from_email?: string | null
           from_name?: string | null
           id?: string
           is_read?: boolean | null
+          last_opened_at?: string | null
+          open_count?: number | null
           received_at?: string | null
           scheduled_send_at?: string | null
           send_status?: string
           subject?: string | null
           thread_id?: string | null
           to_emails?: string[] | null
+          tracking_id?: string | null
           user_id?: string
         }
         Relationships: [
@@ -1047,6 +1059,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      investor_updates: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          recipient_count: number | null
+          sent_at: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          recipient_count?: number | null
+          sent_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          recipient_count?: number | null
+          sent_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       notes: {
         Row: {
@@ -1297,6 +1345,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_activity_log: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_integrations: {
         Row: {

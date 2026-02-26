@@ -60,6 +60,7 @@ const navigation: NavItem[] = [
 const bottomNav = [
   { name: 'AI Assistant', href: '/assistant', icon: Sparkles },
   { name: 'Notes', href: '/notes', icon: StickyNote },
+  { name: 'Admin Analytics', href: '/admin-analytics', icon: BarChart3 },
   { name: 'Brand Assets', href: '/brand', icon: ImageIcon },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

@@ -273,11 +273,15 @@ async function sendViaResend(
 
 // --- Build HTML body ---
 
-function buildHtmlBody(body: string): string {
+function buildHtmlBody(body: string, trackingPixelUrl?: string): string {
   const htmlBody = body
     .split("\n\n")
     .map((p: string) => `<p style="margin:0 0 1em 0;">${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
+
+  const trackingTag = trackingPixelUrl
+    ? `<img src="${trackingPixelUrl}" width="1" height="1" style="display:none;width:1px;height:1px;border:0;" alt="" />`
+    : "";
 
   return `<!DOCTYPE html>
 <html>
@@ -289,6 +293,7 @@ function buildHtmlBody(body: string): string {
 <div style="font-family:Arial, Helvetica, sans-serif; font-size:14px; line-height:1.5; color:#222222; max-width:600px;">
 ${htmlBody}
 </div>
+${trackingTag}
 </body>
 </html>`;
 }
@@ -347,8 +352,12 @@ Deno.serve(async (req) => {
     const toList = Array.isArray(to) ? to : [to];
     const replyTo = reply_to || userEmail;
 
-    // Build HTML
-    const html = buildHtmlBody(body);
+    // Build HTML with tracking pixel
+    // We'll generate a tracking ID and embed the pixel
+    const trackingId = crypto.randomUUID();
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const trackingPixelUrl = `${supabaseUrl}/functions/v1/track-email-open?t=${trackingId}`;
+    const html = buildHtmlBody(body, trackingPixelUrl);
 
     // Fetch attachments
     const attachments = attachment_doc_ids?.length
@@ -423,6 +432,7 @@ Deno.serve(async (req) => {
       direction: "outbound",
       external_id: externalId,
       external_provider: externalProvider,
+      tracking_id: trackingId,
     }).select("id").single();
 
     if (dbError) console.error("DB save error:", dbError);
