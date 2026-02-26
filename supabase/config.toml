@@ -1,43 +1,33 @@
 project_id = "ygreplqxqazgxkudonso"
 
-[functions.google-oauth-init]
-verify_jwt = false
-
-[functions.google-oauth-callback]
-verify_jwt = false
-
-[functions.sync-google-emails]
-verify_jwt = false
-
-[functions.sync-google-calendar]
-verify_jwt = false
-
-[functions.send-email]
-verify_jwt = false
-
-[functions.microsoft-oauth-init]
-verify_jwt = false
-
-[functions.microsoft-oauth-callback]
-verify_jwt = false
-
-[functions.sync-microsoft-emails]
-verify_jwt = false
-
-[functions.sync-microsoft-calendar]
-verify_jwt = false
-
-[functions.parse-import]
-verify_jwt = false
-
-[functions.chat]
-verify_jwt = false
-
-[functions.generate-email]
-verify_jwt = false
-
-[functions.track-email-open]
-verify_jwt = false
-
-[functions.generate-investor-update]
-verify_jwt = false
+[functions]
+  [functions.auth-email-hook]
+    verify_jwt = false
+  [functions.chat]
+    verify_jwt = false
+  [functions.generate-email]
+    verify_jwt = false
+  [functions.generate-investor-update]
+    verify_jwt = false
+  [functions.google-oauth-callback]
+    verify_jwt = false
+  [functions.google-oauth-init]
+    verify_jwt = false
+  [functions.microsoft-oauth-callback]
+    verify_jwt = false
+  [functions.microsoft-oauth-init]
+    verify_jwt = false
+  [functions.parse-import]
+    verify_jwt = false
+  [functions.send-email]
+    verify_jwt = false
+  [functions.sync-google-calendar]
+    verify_jwt = false
+  [functions.sync-google-emails]
+    verify_jwt = false
+  [functions.sync-microsoft-calendar]
+    verify_jwt = false
+  [functions.sync-microsoft-emails]
+    verify_jwt = false
+  [functions.track-email-open]
+    verify_jwt = false
