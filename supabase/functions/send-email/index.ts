@@ -253,7 +253,7 @@ async function sendViaResend(
   if (!resendApiKey) throw new Error("RESEND_API_KEY not configured");
 
   const resendPayload: Record<string, unknown> = {
-    from: `${fromName} <noreply@acquire-crm.com>`,
+    from: `${fromName} <onboarding@resend.dev>`,
     to: toList,
     bcc: bccList,
     subject,
