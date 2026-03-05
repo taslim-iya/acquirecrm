@@ -412,7 +412,7 @@ export function BulkEmailModal({ open, onOpenChange, investors }: BulkEmailModal
         {/* DONE PHASE */}
         {phase === 'done' && (
           <div className="flex-1 flex flex-col items-center justify-center py-12">
-            <CheckCircle2 className="w-12 h-12 text-emerald-500 mb-4" />
+            <CheckCircle2 className="w-12 h-12 text-primary mb-4" />
             <p className="text-lg font-semibold text-foreground mb-2">All Done</p>
             <p className="text-sm text-muted-foreground">
               {sentCount} sent{skippedCount > 0 ? `, ${skippedCount} skipped` : ''}
