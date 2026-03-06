@@ -230,11 +230,20 @@ export function InvestorCard({ deal, onEdit, onDelete }: InvestorCardProps) {
         investorName={deal.organization || deal.name}
         investorEmail={contactData?.email || ''}
         onEmailSent={async () => {
-          // Auto-move to outreach_sent if currently not_contacted
-          if (deal.stage === 'not_contacted') {
+          // Auto-advance stage based on current stage
+          const stageAdvancement: Record<string, string> = {
+            not_contacted: 'outreach_sent',
+            outreach_sent: 'follow_up',
+          };
+          const nextStage = stageAdvancement[deal.stage];
+          if (nextStage) {
             try {
-              await updateStage.mutateAsync({ id: deal.id, stage: 'outreach_sent' });
-              toast.success(`${deal.organization || deal.name} moved to Outreach Sent`);
+              await updateStage.mutateAsync({ id: deal.id, stage: nextStage as any });
+              const labels: Record<string, string> = {
+                outreach_sent: 'Outreach Sent',
+                follow_up: 'Follow-up',
+              };
+              toast.success(`${deal.organization || deal.name} moved to ${labels[nextStage]}`);
             } catch {
               // silently fail stage update
             }
