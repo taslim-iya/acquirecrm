@@ -237,13 +237,20 @@ export function BulkEmailModal({ open, onOpenChange, investors }: BulkEmailModal
       setSentCount(prev => prev + 1);
       toast.success(`Sent to ${r.name}`);
 
-      // Auto-move investor from not_contacted to outreach_sent
+      // Auto-advance investor stage based on current stage
       const investor = investors.find(i => i.id === r.investorId);
-      if (investor && investor.stage === 'not_contacted') {
-        try {
-          await updateStage.mutateAsync({ id: investor.id, stage: 'outreach_sent' });
-        } catch {
-          // silently fail stage update
+      if (investor) {
+        const stageAdvancement: Record<string, string> = {
+          not_contacted: 'outreach_sent',
+          outreach_sent: 'follow_up',
+        };
+        const nextStage = stageAdvancement[investor.stage];
+        if (nextStage) {
+          try {
+            await updateStage.mutateAsync({ id: investor.id, stage: nextStage as any });
+          } catch {
+            // silently fail stage update
+          }
         }
       }
     } catch {
