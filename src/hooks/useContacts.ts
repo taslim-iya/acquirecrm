@@ -35,6 +35,63 @@ export function useCreateContact() {
     mutationFn: async (contact: Omit<ContactInsert, 'user_id'>) => {
       if (!user) throw new Error('User not authenticated');
 
+      // Deduplicate: check for existing contact by email or name+organization
+      let existingContact: Contact | null = null;
+
+      if (contact.email) {
+        const { data } = await supabase
+          .from('contacts')
+          .select('*')
+          .eq('email', contact.email)
+          .maybeSingle();
+        if (data) existingContact = data as Contact;
+      }
+
+      if (!existingContact && contact.name) {
+        let query = supabase
+          .from('contacts')
+          .select('*')
+          .eq('name', contact.name);
+        if (contact.organization) {
+          query = query.eq('organization', contact.organization);
+        }
+        const { data } = await query.maybeSingle();
+        if (data) existingContact = data as Contact;
+      }
+
+      if (existingContact) {
+        // Merge: update existing contact with any new non-null fields
+        const updates: Record<string, any> = {};
+        const fields = ['phone', 'organization', 'role', 'geography', 'source', 'notes', 'contact_type', 'warmth', 'influence', 'likelihood'] as const;
+        for (const field of fields) {
+          if (contact[field] != null && contact[field] !== '' && !existingContact[field]) {
+            updates[field] = contact[field];
+          }
+        }
+        // Merge tags
+        if (contact.tags && contact.tags.length > 0) {
+          const existingTags = existingContact.tags || [];
+          const merged = [...new Set([...existingTags, ...contact.tags])];
+          if (merged.length !== existingTags.length) updates.tags = merged;
+        }
+        // Update email if not set
+        if (contact.email && !existingContact.email) {
+          updates.email = contact.email;
+        }
+
+        if (Object.keys(updates).length > 0) {
+          const { data, error } = await supabase
+            .from('contacts')
+            .update(updates)
+            .eq('id', existingContact.id)
+            .select()
+            .single();
+          if (error) throw error;
+          return data;
+        }
+        return existingContact;
+      }
+
       const { data, error } = await supabase
         .from('contacts')
         .insert({ ...contact, user_id: user.id })
