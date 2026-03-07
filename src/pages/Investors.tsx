@@ -61,6 +61,21 @@ export default function Investors() {
   const [stageFilter, setStageFilter] = useState<string>('all');
   const updateStage = useUpdateInvestorStage();
   const updateStageWithCommitment = useUpdateInvestorStageWithCommitment();
+  const updateInvestor = useUpdateInvestorDeal();
+
+  const handleInlineEdit = useCallback(async (id: string, field: string, value: string) => {
+    try {
+      const update: any = { id };
+      if (field === 'commitment_amount') {
+        update[field] = value ? parseFloat(value) : null;
+      } else {
+        update[field] = value || null;
+      }
+      await updateInvestor.mutateAsync(update);
+    } catch {
+      toast.error('Failed to update');
+    }
+  }, [updateInvestor]);
 
   const [commitmentModalOpen, setCommitmentModalOpen] = useState(false);
   const [pendingDeal, setPendingDeal] = useState<InvestorDeal | null>(null);
@@ -313,11 +328,33 @@ export default function Investors() {
                     />
                   </TableCell>
                   <TableCell>
-                    <span className="font-medium text-foreground">{inv.name}</span>
+                    <EditableCell
+                      value={inv.name}
+                      onSave={(v) => handleInlineEdit(inv.id, 'name', v)}
+                      className="font-medium text-foreground"
+                    />
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{inv.organization || '—'}</TableCell>
-                  <TableCell className="text-muted-foreground">{(inv as any).investor_type || '—'}</TableCell>
-                  <TableCell className="text-muted-foreground">{(inv as any).geography || '—'}</TableCell>
+                  <TableCell>
+                    <EditableCell
+                      value={inv.organization || ''}
+                      onSave={(v) => handleInlineEdit(inv.id, 'organization', v)}
+                      className="text-muted-foreground"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <EditableCell
+                      value={(inv as any).investor_type || ''}
+                      onSave={(v) => handleInlineEdit(inv.id, 'investor_type', v)}
+                      className="text-muted-foreground"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <EditableCell
+                      value={(inv as any).geography || ''}
+                      onSave={(v) => handleInlineEdit(inv.id, 'geography', v)}
+                      className="text-muted-foreground"
+                    />
+                  </TableCell>
                   <TableCell>
                     <Select
                       value={inv.stage}
