@@ -19,10 +19,6 @@ import { toast } from 'sonner';
 
 type SortField = 'name' | 'organization' | 'stage' | 'commitment_amount' | 'investor_type' | 'geography' | 'notes';
 type SortDir = 'asc' | 'desc';
-import { useAuth } from '@/hooks/useAuth';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
 
 const stages: { key: InvestorStage; label: string; color: string }[] = [
   { key: 'not_contacted', label: 'Not Contacted', color: 'bg-stage-cold' },
