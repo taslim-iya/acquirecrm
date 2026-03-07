@@ -243,23 +243,47 @@ export default function Contacts() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-foreground">{c.name}</span>
+                      <EditableCell
+                        value={c.name}
+                        onSave={(v) => handleInlineEdit(c.id, 'name', v)}
+                        className="font-medium text-foreground"
+                      />
                       {c.role && <span className="text-xs text-muted-foreground">· {c.role}</span>}
                     </div>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{c.organization || '—'}</TableCell>
+                  <TableCell>
+                    <EditableCell
+                      value={c.organization || ''}
+                      onSave={(v) => handleInlineEdit(c.id, 'organization', v)}
+                      className="text-muted-foreground"
+                    />
+                  </TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="capitalize text-xs">
                       {c.contact_type.replace('_', ' ')}
                     </Badge>
                   </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {c.email ? (
-                      <a href={`mailto:${c.email}`} className="hover:text-primary transition-colors truncate max-w-[180px] block">{c.email}</a>
-                    ) : '—'}
+                  <TableCell>
+                    <EditableCell
+                      value={c.email || ''}
+                      onSave={(v) => handleInlineEdit(c.id, 'email', v)}
+                      className="text-muted-foreground"
+                    />
                   </TableCell>
-                  <TableCell className="text-muted-foreground">{c.phone || '—'}</TableCell>
-                  <TableCell className="text-muted-foreground">{c.geography || '—'}</TableCell>
+                  <TableCell>
+                    <EditableCell
+                      value={c.phone || ''}
+                      onSave={(v) => handleInlineEdit(c.id, 'phone', v)}
+                      className="text-muted-foreground"
+                    />
+                  </TableCell>
+                  <TableCell>
+                    <EditableCell
+                      value={c.geography || ''}
+                      onSave={(v) => handleInlineEdit(c.id, 'geography', v)}
+                      className="text-muted-foreground"
+                    />
+                  </TableCell>
                   <TableCell>
                     {c.warmth ? (
                       <div className="flex items-center gap-1.5">
