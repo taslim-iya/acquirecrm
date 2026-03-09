@@ -1522,6 +1522,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_investor_reply_status: {
+        Args: never
+        Returns: {
+          contact_email: string
+          first_inbound_after_outbound_at: string
+          investor_deal_id: string
+          investor_name: string
+          last_outbound_at: string
+          organization: string
+          owner_email: string
+          owner_user_id: string
+          reply_status: string
+          stage: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
