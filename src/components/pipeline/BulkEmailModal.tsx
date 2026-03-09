@@ -561,13 +561,29 @@ export function BulkEmailModal({ open, onOpenChange, investors }: BulkEmailModal
               </Button>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-                <Button
-                  onClick={startReview}
-                  disabled={!subject || !body || recipientsWithEmail.length === 0 || loadingRecipients}
-                >
-                  <ChevronRight className="w-4 h-4 mr-2" />
-                  Review & Send One by One
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button disabled={!subject || !body || recipientsWithEmail.length === 0 || loadingRecipients || isBulkSending}>
+                      {isBulkSending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4 mr-2" />
+                      )}
+                      {isBulkSending ? 'Sending...' : 'Send'}
+                      <ChevronDown className="w-4 h-4 ml-2" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleSendAll} disabled={isBulkSending}>
+                      <Send className="w-4 h-4 mr-2" />
+                      Send All Now ({recipientsWithEmail.length})
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={startReview}>
+                      <ChevronRight className="w-4 h-4 mr-2" />
+                      Review & Send One by One
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </>
