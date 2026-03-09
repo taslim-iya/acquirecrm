@@ -132,7 +132,9 @@ export function BulkEmailModal({ open, onOpenChange, investors }: BulkEmailModal
       setCurrentIndex(0);
       setSentCount(0);
       setSkippedCount(0);
+      setFailedCount(0);
       setIsSending(false);
+      setIsBulkSending(false);
       setAttachedDocIds([]);
       setManualFiles([]);
       setScheduledTime('');
