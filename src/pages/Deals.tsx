@@ -102,15 +102,16 @@ export default function Deals() {
           description="Track your acquisition targets"
           actions={
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => setIsImportOpen(true)}>
-                <Upload className="w-4 h-4 mr-2" />
+              <Button variant="outline" size="sm" onClick={() => setIsImportOpen(true)}>
+                <Upload className="w-4 h-4 mr-1" />
                 Import
               </Button>
               <Button 
+                size="sm"
                 className="gradient-gold text-primary-foreground hover:opacity-90"
                 onClick={handleAddCompany}
               >
-                <Plus className="w-4 h-4 mr-2" />
+                <Plus className="w-4 h-4 mr-1" />
                 Add Company
               </Button>
             </div>
@@ -128,7 +129,7 @@ export default function Deals() {
               className="pl-9 h-9"
             />
           </div>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="sm">
             <Filter className="w-4 h-4" />
           </Button>
         </div>
