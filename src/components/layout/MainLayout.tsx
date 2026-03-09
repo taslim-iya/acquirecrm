@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar, MobileSidebar, MobileHeader, SidebarProvider } from './Sidebar';
 import { NotificationBell } from './NotificationBell';
+import { ChatBubble } from './ChatBubble';
 import { useDemoMode } from '@/hooks/useDemoMode';
 import { Button } from '@/components/ui/button';
 import { Eye, X } from 'lucide-react';
