@@ -91,10 +91,12 @@ export default function Assistant() {
       });
     };
 
-    await streamChat({
+    await sendChat({
       messages: [...messages, userMsg],
-      onDelta: (chunk) => upsertAssistant(chunk),
-      onDone: () => setIsLoading(false),
+      onResult: (text) => {
+        setMessages((prev) => [...prev, { role: 'assistant', content: text }]);
+        setIsLoading(false);
+      },
       onError: (error) => {
         toast({ title: 'AI Error', description: error, variant: 'destructive' });
         setIsLoading(false);
