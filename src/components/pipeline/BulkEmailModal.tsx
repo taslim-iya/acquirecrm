@@ -669,7 +669,7 @@ export function BulkEmailModal({ open, onOpenChange, investors }: BulkEmailModal
             <CheckCircle2 className="w-12 h-12 text-primary mb-4" />
             <p className="text-lg font-semibold text-foreground mb-2">All Done</p>
             <p className="text-sm text-muted-foreground">
-              {sentCount} sent{skippedCount > 0 ? `, ${skippedCount} skipped` : ''}
+              {sentCount} sent{skippedCount > 0 ? `, ${skippedCount} skipped` : ''}{failedCount > 0 ? `, ${failedCount} failed` : ''}
             </p>
             <Button className="mt-6" onClick={() => onOpenChange(false)}>Close</Button>
           </div>
