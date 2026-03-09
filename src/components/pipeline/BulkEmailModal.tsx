@@ -77,7 +77,9 @@ export function BulkEmailModal({ open, onOpenChange, investors }: BulkEmailModal
   const [personalizedBody, setPersonalizedBody] = useState('');
   const [sentCount, setSentCount] = useState(0);
   const [skippedCount, setSkippedCount] = useState(0);
+  const [failedCount, setFailedCount] = useState(0);
   const [isSending, setIsSending] = useState(false);
+  const [isBulkSending, setIsBulkSending] = useState(false);
 
   const { data: templates } = useEmailTemplates();
   const sendEmail = useSendEmail();
@@ -130,7 +132,9 @@ export function BulkEmailModal({ open, onOpenChange, investors }: BulkEmailModal
       setCurrentIndex(0);
       setSentCount(0);
       setSkippedCount(0);
+      setFailedCount(0);
       setIsSending(false);
+      setIsBulkSending(false);
       setAttachedDocIds([]);
       setManualFiles([]);
       setScheduledTime('');
@@ -264,6 +268,58 @@ export function BulkEmailModal({ open, onOpenChange, investors }: BulkEmailModal
   const handleSkipCurrent = () => {
     setSkippedCount(prev => prev + 1);
     loadRecipient(currentIndex + 1);
+  };
+
+  // Send all emails without review
+  const handleSendAll = async () => {
+    setIsBulkSending(true);
+    let sent = 0;
+    let failed = 0;
+
+    for (const r of recipientsWithEmail) {
+      const personalizedSubj = personalizeText(subject, r);
+      const personalizedBod = personalizeText(body, r);
+
+      try {
+        await sendEmail.mutateAsync({
+          to: r.email!,
+          subject: personalizedSubj,
+          body: personalizedBod,
+          attachment_doc_ids: attachedDocIds.length > 0 ? attachedDocIds : undefined,
+        });
+        sent++;
+
+        // Auto-advance investor stage
+        const investor = investors.find(i => i.id === r.investorId);
+        if (investor) {
+          const stageAdvancement: Record<string, string> = {
+            not_contacted: 'outreach_sent',
+            outreach_sent: 'follow_up',
+          };
+          const nextStage = stageAdvancement[investor.stage];
+          if (nextStage) {
+            try {
+              await updateStage.mutateAsync({ id: investor.id, stage: nextStage as any });
+            } catch {
+              // silently fail stage update
+            }
+          }
+        }
+      } catch {
+        failed++;
+      }
+    }
+
+    setSentCount(sent);
+    setFailedCount(failed);
+    setIsBulkSending(false);
+    setPhase('done');
+    
+    if (scheduledTime) {
+      toast.info(`${sent} emails scheduled for ${format(new Date(scheduledTime), 'MMM d, yyyy h:mm a')}`);
+    } else {
+      toast.success(`${sent} emails sent${failed > 0 ? `, ${failed} failed` : ''}`);
+    }
   };
 
   const currentRecipient = recipientsWithEmail[currentIndex];
@@ -505,13 +561,29 @@ export function BulkEmailModal({ open, onOpenChange, investors }: BulkEmailModal
               </Button>
               <div className="flex gap-2">
                 <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-                <Button
-                  onClick={startReview}
-                  disabled={!subject || !body || recipientsWithEmail.length === 0 || loadingRecipients}
-                >
-                  <ChevronRight className="w-4 h-4 mr-2" />
-                  Review & Send One by One
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button disabled={!subject || !body || recipientsWithEmail.length === 0 || loadingRecipients || isBulkSending}>
+                      {isBulkSending ? (
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      ) : (
+                        <Send className="w-4 h-4 mr-2" />
+                      )}
+                      {isBulkSending ? 'Sending...' : 'Send'}
+                      <ChevronDown className="w-4 h-4 ml-2" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={handleSendAll} disabled={isBulkSending}>
+                      <Send className="w-4 h-4 mr-2" />
+                      Send All Now ({recipientsWithEmail.length})
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={startReview}>
+                      <ChevronRight className="w-4 h-4 mr-2" />
+                      Review & Send One by One
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </>
@@ -597,7 +669,7 @@ export function BulkEmailModal({ open, onOpenChange, investors }: BulkEmailModal
             <CheckCircle2 className="w-12 h-12 text-primary mb-4" />
             <p className="text-lg font-semibold text-foreground mb-2">All Done</p>
             <p className="text-sm text-muted-foreground">
-              {sentCount} sent{skippedCount > 0 ? `, ${skippedCount} skipped` : ''}
+              {sentCount} sent{skippedCount > 0 ? `, ${skippedCount} skipped` : ''}{failedCount > 0 ? `, ${failedCount} failed` : ''}
             </p>
             <Button className="mt-6" onClick={() => onOpenChange(false)}>Close</Button>
           </div>
