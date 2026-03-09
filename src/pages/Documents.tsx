@@ -153,7 +153,7 @@ export default function Documents() {
         description="Manage all your deal documents"
         actions={
           <Button 
-            className="gradient-gold text-primary-foreground hover:opacity-90"
+            size="sm"
             onClick={handleUploadClick}
             disabled={uploadDocument.isPending}
           >
