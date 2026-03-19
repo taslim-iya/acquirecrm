@@ -164,6 +164,9 @@ export default function Contacts() {
                 <Trash2 className="w-4 h-4 mr-1" /> Delete {selectedIds.size}
               </Button>
             )}
+            <Button variant="outline" size="sm" onClick={() => setIsDedupeOpen(true)}>
+              <Merge className="w-4 h-4 mr-1" /> Deduplicate
+            </Button>
             <Button variant="outline" size="sm" onClick={() => setIsImportOpen(true)}>
               <Upload className="w-4 h-4 mr-1" /> Import
             </Button>
