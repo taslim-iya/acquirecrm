@@ -330,6 +330,7 @@ export default function Contacts() {
       <ContactFormModal open={isFormOpen} onOpenChange={setIsFormOpen} contact={selectedContact} />
       <DeleteContactDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen} contact={selectedContact} />
       <ImportModal open={isImportOpen} onOpenChange={setIsImportOpen} entityType="contacts" onImport={handleImportContacts} />
+      <DeduplicateContactsDialog open={isDedupeOpen} onOpenChange={setIsDedupeOpen} contacts={contacts} />
     </div>
   );
 }
