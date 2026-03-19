@@ -10,12 +10,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useContacts, Contact, useDeleteContact, useUpdateContact } from '@/hooks/useContacts';
 import { EditableCell } from '@/components/ui/EditableCell';
 import { Database } from '@/integrations/supabase/types';
-import { Plus, Search, Users, Loader2, Upload, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Search, Users, Loader2, Upload, Pencil, Trash2, Merge } from 'lucide-react';
 import { ImportModal } from '@/components/import/ImportModal';
 import { useCreateContact } from '@/hooks/useContacts';
 import { useCreateInvestorDeal } from '@/hooks/useInvestorDeals';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { DeduplicateContactsDialog } from '@/components/contacts/DeduplicateContactsDialog';
 
 type ContactType = Database['public']['Enums']['contact_type'];
 
