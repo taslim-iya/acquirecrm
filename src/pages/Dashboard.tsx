@@ -5,6 +5,7 @@ import { TaskList } from '@/components/dashboard/TaskList';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { useDashboardMetrics } from '@/hooks/useDashboardMetrics';
 import { useAppMode } from '@/hooks/useAppMode';
+import { useDemoMode, DEMO_DATA } from '@/hooks/useDemoMode';
 import { Link } from 'react-router-dom';
 import {
   Users,
@@ -19,8 +20,31 @@ import {
 } from 'lucide-react';
 
 export default function Dashboard() {
-  const { data: metrics, isLoading } = useDashboardMetrics();
+  const { data: realMetrics, isLoading } = useDashboardMetrics();
   const { mode } = useAppMode();
+  const { isDemoMode } = useDemoMode();
+
+  // Use demo metrics when in demo mode or when real data is all zeros
+  const metrics = isDemoMode ? {
+    investorsContacted: DEMO_DATA.metrics.emailsSent,
+    responseRate: DEMO_DATA.metrics.responseRate,
+    meetingsBooked: DEMO_DATA.metrics.meetingsThisWeek,
+    commitments: 2,
+    totalInvestors: DEMO_DATA.metrics.totalInvestors,
+    investorsByStage: {
+      not_contacted: 8, outreach_sent: 12, follow_up: 9,
+      meeting_scheduled: DEMO_DATA.metrics.meetingsThisWeek, interested: 6, passed: 3, committed: 2, closed: 0,
+    },
+    totalDeals: 12,
+    ndasSigned: 3,
+    dealsByStage: {
+      identified: 4, researching: 3, outreach_sent: 2, follow_up: 1,
+      nda_sent: 1, nda_signed: 2, in_discussion: 1, passed: 1, due_diligence: 0, loi: 0, closed: 0,
+    },
+    totalContacts: 34,
+    pendingTasks: DEMO_DATA.tasks.filter(t => !t.completed).length,
+    completedTasks: DEMO_DATA.tasks.filter(t => t.completed).length,
+  } : realMetrics;
 
   const investorStages = metrics ? [
     { name: 'Outreach', count: metrics.investorsByStage.outreach_sent, color: 'bg-stage-cold' },

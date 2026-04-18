@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { lovable } from '@/integrations/lovable/index';
 import { useBrandSettings } from '@/hooks/useBrandSettings';
 import { useAuth } from '@/hooks/useAuth';
 import { useDemoMode } from '@/hooks/useDemoMode';
