@@ -127,21 +127,21 @@ export default function Inbox() {
           )}
         >
           {/* Tab bar */}
-          <div className="flex border-b border-border">
+          <div className="flex border-b border-border/60 vibrancy">
             {(['all', 'inbox', 'sent'] as InboxTab[]).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
                 className={cn(
-                  'flex-1 px-4 py-2.5 text-sm font-medium transition-colors relative',
+                  'flex-1 px-4 py-2.5 text-[0.8125rem] font-medium transition-colors relative tracking-[-0.005em]',
                   activeTab === tab
-                    ? 'text-primary'
+                    ? 'text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
                 {tab === 'all' ? 'All Mail' : tab === 'inbox' ? `Inbox${unreadCount > 0 ? ` (${unreadCount})` : ''}` : 'Sent'}
                 {activeTab === tab && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-t-full" />
+                  <div className="absolute bottom-0 left-1/4 right-1/4 h-[2px] bg-primary rounded-full" />
                 )}
               </button>
             ))}
@@ -170,8 +170,8 @@ export default function Inbox() {
                       key={email.id}
                       onClick={() => handleSelectEmail(email)}
                       className={cn(
-                        'w-full text-left px-4 py-2.5 flex items-start gap-3 transition-colors border-b border-border/50',
-                        isSelected ? 'bg-primary/[0.06]' : 'hover:bg-accent/40',
+                        'w-full text-left px-4 py-2.5 flex items-start gap-3 transition-colors border-b border-border/40 ease-apple',
+                        isSelected ? 'bg-primary/[0.08]' : 'hover:bg-accent/50',
                         isUnread && !isSelected && 'bg-card'
                       )}
                     >
@@ -238,7 +238,7 @@ export default function Inbox() {
                   >
                     <ArrowLeft className="w-4 h-4" />
                   </Button>
-                  <h2 className="text-xl font-semibold flex-1 truncate">
+                  <h2 className="font-display text-xl font-semibold flex-1 truncate tracking-[-0.022em]">
                     {selectedEmail.subject || '(no subject)'}
                   </h2>
                 </div>

@@ -131,11 +131,11 @@ export function InvestorCard({ deal, onEdit, onDelete }: InvestorCardProps) {
   const commitmentDisplay = formatCurrency(deal.commitment_amount);
 
   return (
-    <div className="goldman-card p-4 group animate-slide-up">
+    <div className="apple-card p-4 group animate-slide-up">
       {/* Header row */}
       <div className="flex items-start justify-between mb-2.5">
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="w-9 h-9 rounded-lg gradient-primary flex items-center justify-center text-xs font-semibold text-primary-foreground shrink-0 shadow-xs">
+          <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center text-xs font-semibold text-primary-foreground shrink-0 shadow-apple-sm">
             {getInitials(displayName)}
           </div>
           <div className="min-w-0 flex-1">
@@ -209,9 +209,9 @@ export function InvestorCard({ deal, onEdit, onDelete }: InvestorCardProps) {
 
       {/* Commitment badge */}
       {commitmentDisplay && (
-        <div className="inline-flex items-center gap-1.5 text-xs font-medium text-success bg-success/10 px-2.5 py-1 rounded-md mt-1">
+        <div className="inline-flex items-center gap-1.5 text-[0.6875rem] font-semibold text-success bg-success/10 px-2.5 py-1 rounded-full mt-1 uppercase tracking-[0.01em]">
           <DollarSign className="w-3.5 h-3.5" />
-          <span>{commitmentDisplay}</span>
+          <span className="tabular-nums">{commitmentDisplay}</span>
         </div>
       )}
 
