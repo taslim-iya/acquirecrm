@@ -73,11 +73,11 @@ export default function Auth() {
           />
           
           <div className="space-y-6">
-            <h1 className="text-4xl font-semibold leading-tight tracking-tight">
+            <h1 className="font-display text-5xl font-semibold leading-[1.05] tracking-[-0.032em]">
               The modern CRM for<br />
-              acquisition entrepreneurs
+              acquisition entrepreneurs.
             </h1>
-            <p className="text-lg text-white/70 max-w-md leading-relaxed">
+            <p className="text-lg text-white/75 max-w-md leading-relaxed tracking-[-0.014em]">
               Manage your investor pipeline, track target companies, and close deals faster with our purpose-built platform.
             </p>
           </div>
@@ -98,10 +98,10 @@ export default function Auth() {
             />
           </div>
 
-          <Card className="border-0 shadow-xl">
+          <Card className="border-0 shadow-apple-xl rounded-3xl">
             <CardHeader className="text-center pb-2 pt-8">
-              <CardTitle className="text-2xl font-semibold tracking-tight">Welcome</CardTitle>
-              <CardDescription className="text-muted-foreground">
+              <CardTitle className="font-display text-3xl font-semibold tracking-[-0.026em]">Welcome</CardTitle>
+              <CardDescription className="text-[0.9375rem] text-muted-foreground tracking-[-0.011em]">
                 Sign in to manage your acquisition journey
               </CardDescription>
             </CardHeader>
