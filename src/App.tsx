@@ -11,6 +11,7 @@ import { BrandHeadTags } from "@/components/brand/BrandHeadTags";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { AdminRoute } from "@/components/layout/AdminRoute";
 import { MainLayout } from "@/components/layout/MainLayout";
+import { ErrorBoundary } from "@/components/layout/ErrorBoundary";
 import Dashboard from "./pages/Dashboard";
 import Contacts from "./pages/Contacts";
 import Investors from "./pages/Investors";
@@ -44,6 +45,7 @@ import TermsOfService from "./pages/TermsOfService";
 const queryClient = new QueryClient();
 
 const App = () => (
+  <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
@@ -64,7 +66,14 @@ const App = () => (
                     <ProtectedRoute>
                       <MainLayout>
                         <Routes>
-                          <Route path="/" element={<Dashboard />} />
+                          <Route
+                            path="/"
+                            element={
+                              <ErrorBoundary>
+                                <Dashboard />
+                              </ErrorBoundary>
+                            }
+                          />
                           <Route path="/inbox" element={<Inbox />} />
                           <Route path="/contacts" element={<Contacts />} />
                           <Route path="/investors" element={<Investors />} />
@@ -103,6 +112,7 @@ const App = () => (
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

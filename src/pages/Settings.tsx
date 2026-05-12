@@ -249,8 +249,6 @@ export default function Settings() {
         throw new Error(data.error || 'Failed to start Microsoft OAuth');
       }
 
-      console.log('Microsoft OAuth URL received, redirecting...');
-
       const authWindow = window.open(data.url, '_blank', 'noopener,noreferrer');
       if (authWindow) {
         toast.info('Microsoft sign-in opened in a new tab', {

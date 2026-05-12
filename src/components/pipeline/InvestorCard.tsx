@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { logDevError } from '@/lib/log';
 import { CommitmentAmountModal } from './CommitmentAmountModal';
 import { SmartComposeModal } from '@/components/email/SmartComposeModal';
 import { FollowUpSetupModal } from './FollowUpSetupModal';
@@ -248,8 +249,9 @@ export function InvestorCard({ deal, onEdit, onDelete }: InvestorCardProps) {
                 follow_up: 'Follow-up',
               };
               toast.success(`${deal.organization || deal.name} moved to ${labels[nextStage]}`);
-            } catch {
-              // silently fail stage update
+            } catch (err) {
+              logDevError('InvestorCard.advanceStage', err);
+              toast.error('Could not advance deal stage');
             }
           }
         }}

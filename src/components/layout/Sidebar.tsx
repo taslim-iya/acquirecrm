@@ -1,6 +1,7 @@
 import { useState, useEffect, createContext, useContext, ReactNode, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { logDevError } from '@/lib/log';
 import { useAuth } from '@/hooks/useAuth';
 import { useDemoMode } from '@/hooks/useDemoMode';
 import { useAppMode } from '@/hooks/useAppMode';
@@ -110,7 +111,9 @@ function usePersistedNav(key: string, defaults: NavItem[]): [NavItem[], (items: 
         });
         return rehydrated;
       }
-    } catch { /* ignore */ }
+    } catch (err) {
+      logDevError('Sidebar.rehydrateNav', err);
+    }
     return defaults;
   });
 
@@ -182,14 +185,14 @@ function NavItemLink({ item, isActive, onNavigate, showBadge, badgeCount }: {
       to={item.href}
       onClick={() => onNavigate?.()}
       className={cn(
-        'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+        'flex items-center gap-3 px-3 py-1.5 rounded-lg text-[0.8125rem] font-medium tracking-[-0.005em] transition-colors duration-150 ease-apple',
         isActive
-          ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-          : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
+          ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-apple-sm'
+          : 'text-sidebar-foreground/85 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground',
         item.name === 'AI Assistant' && 'group'
       )}
     >
-      <item.icon className={cn('w-5 h-5', isActive && 'text-sidebar-primary', item.name === 'AI Assistant' && 'group-hover:text-sidebar-primary transition-colors')} />
+      <item.icon className={cn('w-[18px] h-[18px] shrink-0', isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/70', item.name === 'AI Assistant' && 'group-hover:text-sidebar-primary transition-colors')} strokeWidth={isActive ? 2.25 : 1.85} />
       {item.name}
       {item.name === 'Inbox' && showBadge && badgeCount ? (
         <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded-full bg-destructive text-destructive-foreground font-medium min-w-[18px] text-center">
@@ -262,12 +265,13 @@ function SidebarContentInner({ onNavigate }: { onNavigate?: () => void }) {
   };
 
   return (
-    <div className="flex flex-col h-full" style={{ background: 'var(--gradient-sidebar)' }}>
-      <div className="h-16 flex items-center px-6 border-b border-sidebar-border/50">
+    <div className="vibrancy-sidebar flex flex-col h-full">
+      <div className="h-14 flex items-center px-5 border-b border-sidebar-border/60">
         <BrandLogo
-          variant="light"
-          titleClassName="text-base text-white"
-          iconClassName="bg-white/10 backdrop-blur-sm border border-white/10"
+          variant="mark"
+          showTitle
+          titleClassName="font-display text-[15px] font-semibold tracking-[-0.018em] text-sidebar-foreground"
+          iconClassName="w-7 h-7 rounded-xl gradient-primary text-primary-foreground shadow-apple-sm"
         />
       </div>
       <div className="px-3 pt-4 pb-2">
@@ -356,13 +360,13 @@ function SidebarContentInner({ onNavigate }: { onNavigate?: () => void }) {
                   to={item.href}
                   onClick={() => onNavigate?.()}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
+                    'flex items-center gap-3 px-3 py-1.5 rounded-lg text-[0.8125rem] font-medium tracking-[-0.005em] transition-colors duration-150 ease-apple',
                     isActive
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                      : 'text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground'
+                      ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-apple-sm'
+                      : 'text-sidebar-foreground/85 hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground'
                   )}
                 >
-                  <item.icon className={cn('w-5 h-5', isActive && 'text-sidebar-primary')} />
+                  <item.icon className={cn('w-[18px] h-[18px] shrink-0', isActive ? 'text-sidebar-primary' : 'text-sidebar-foreground/70')} strokeWidth={isActive ? 2.25 : 1.85} />
                   {item.name}
                 </Link>
               );
@@ -392,7 +396,7 @@ function SidebarContentInner({ onNavigate }: { onNavigate?: () => void }) {
 
 export function Sidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar hidden lg:flex flex-col">
+    <aside className="fixed inset-y-0 left-0 z-50 w-60 hidden lg:flex flex-col border-r border-sidebar-border/70">
       <SidebarContentInner />
     </aside>
   );
@@ -412,7 +416,7 @@ export function MobileSidebar() {
 export function MobileHeader() {
   const { setOpen } = useSidebar();
   return (
-    <header className="lg:hidden fixed top-0 left-0 right-0 z-40 h-14 bg-background border-b border-border flex items-center px-4">
+    <header className="vibrancy lg:hidden fixed top-0 left-0 right-0 z-40 h-14 flex items-center px-4 border-x-0 border-t-0">
       <Button variant="ghost" size="icon" onClick={() => setOpen(true)} className="mr-3">
         <Menu className="w-5 h-5" />
       </Button>

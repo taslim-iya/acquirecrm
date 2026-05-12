@@ -1,33 +1,39 @@
 project_id = "ygreplqxqazgxkudonso"
 
 [functions]
+  # Auth webhook called by Supabase Auth itself (no user JWT). Validate via
+  # X-Webhook-Secret header inside the function.
   [functions.auth-email-hook]
     verify_jwt = false
   [functions.chat]
-    verify_jwt = false
+    verify_jwt = true
   [functions.generate-email]
-    verify_jwt = false
+    verify_jwt = true
   [functions.generate-investor-update]
-    verify_jwt = false
+    verify_jwt = true
+  # OAuth callbacks are hit by the IdP via redirect (no user session). The
+  # function MUST validate the `state` parameter to prevent CSRF.
   [functions.google-oauth-callback]
     verify_jwt = false
   [functions.google-oauth-init]
-    verify_jwt = false
+    verify_jwt = true
   [functions.microsoft-oauth-callback]
     verify_jwt = false
   [functions.microsoft-oauth-init]
-    verify_jwt = false
+    verify_jwt = true
   [functions.parse-import]
-    verify_jwt = false
+    verify_jwt = true
   [functions.send-email]
-    verify_jwt = false
+    verify_jwt = true
   [functions.sync-google-calendar]
-    verify_jwt = false
+    verify_jwt = true
   [functions.sync-google-emails]
-    verify_jwt = false
+    verify_jwt = true
   [functions.sync-microsoft-calendar]
-    verify_jwt = false
+    verify_jwt = true
   [functions.sync-microsoft-emails]
-    verify_jwt = false
+    verify_jwt = true
+  # Public tracking pixel hit by recipient mail clients (no auth possible).
+  # Token in the URL must be a non-guessable per-message identifier.
   [functions.track-email-open]
     verify_jwt = false

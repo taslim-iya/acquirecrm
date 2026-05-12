@@ -8,14 +8,16 @@ interface PageHeaderProps {
 
 export function PageHeader({ title, description, actions }: PageHeaderProps) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 md:mb-8">
-      <div>
-        <h1 className="text-xl md:text-2xl font-semibold text-foreground tracking-tight">{title}</h1>
+    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6 md:mb-8">
+      <div className="space-y-1.5">
+        <h1 className="font-display text-2xl md:text-3xl font-semibold text-foreground tracking-[-0.026em] leading-tight">
+          {title}
+        </h1>
         {description && (
-          <p className="text-sm text-muted-foreground mt-1">{description}</p>
+          <p className="text-[0.9375rem] text-muted-foreground tracking-[-0.011em]">{description}</p>
         )}
       </div>
-      {actions && <div className="flex items-center gap-3 flex-shrink-0">{actions}</div>}
+      {actions && <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>}
     </div>
   );
 }

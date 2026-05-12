@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useEmails, useMarkEmailAsRead, Email } from '@/hooks/useEmails';
 import { useSyncIntegration } from '@/hooks/useSyncIntegration';
 import { ComposeEmailModal } from '@/components/email/ComposeEmailModal';
+import { SafeEmailBody } from '@/components/email/SafeEmailBody';
 import {
   Plus,
   RefreshCw,
@@ -281,11 +282,10 @@ export default function Inbox() {
 
               {/* Email body */}
               <ScrollArea className="flex-1 p-6">
-                <div
-                  className="prose prose-sm max-w-none text-foreground leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: selectedEmail.body_html || selectedEmail.body_preview?.replace(/\n/g, '<br>') || '',
-                  }}
+                <SafeEmailBody
+                  html={selectedEmail.body_html}
+                  textFallback={selectedEmail.body_preview}
+                  className="max-w-none"
                 />
               </ScrollArea>
 

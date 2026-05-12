@@ -123,7 +123,7 @@ export function BrandProvider({ children }: { children: ReactNode }) {
   const getMetaDescription = useCallback(() => settings?.meta_description || DEFAULTS.meta_description, [settings]);
 
   return (
-    <BrandContext.Provider value={{ settings, isLoading, defaults: DEFAULTS, getAsset, getSiteTitle, getSiteSubtitle, getMetaDescription }}>
+    <BrandContext.Provider value={{ settings: settings ?? null, isLoading, defaults: DEFAULTS, getAsset, getSiteTitle, getSiteSubtitle, getMetaDescription }}>
       {children}
     </BrandContext.Provider>
   );
