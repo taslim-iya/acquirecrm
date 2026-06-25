@@ -189,6 +189,44 @@ export default function CompanyProfile() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="peers" className="mt-4">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-xs text-muted-foreground mb-3">Peers share industry or SIC codes with {company.name}.</p>
+              {peers.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">No peer companies found. Set industry or SIC codes to surface peers.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="text-xs text-muted-foreground border-b">
+                      <tr>
+                        <th className="text-left py-2 px-2">Company</th>
+                        <th className="text-left py-2 px-2">Industry</th>
+                        <th className="text-right py-2 px-2">Revenue</th>
+                        <th className="text-right py-2 px-2">Employees</th>
+                        <th className="text-right py-2 px-2">Founded</th>
+                        <th className="text-left py-2 px-2">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {peers.map((p) => (
+                        <tr key={p.id} className="border-b hover:bg-muted/40">
+                          <td className="py-2 px-2 font-medium"><Link to={`/companies/${p.id}`} className="hover:underline">{p.name}</Link></td>
+                          <td className="py-2 px-2 text-muted-foreground">{p.industry || '—'}</td>
+                          <td className="py-2 px-2 text-right tabular-nums">{p.revenue ? `$${Number(p.revenue).toLocaleString()}` : '—'}</td>
+                          <td className="py-2 px-2 text-right tabular-nums">{p.employee_count ?? '—'}</td>
+                          <td className="py-2 px-2 text-right tabular-nums">{p.founded_year ?? '—'}</td>
+                          <td className="py-2 px-2"><Badge variant="outline" className="capitalize">{(p.research_status || 'none').replace(/_/g, ' ')}</Badge></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );
