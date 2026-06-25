@@ -28,6 +28,7 @@ export default function CompanyProfile() {
   const { data: contacts = [] } = useCompanyContacts(id);
   const { data: documents = [] } = useCompanyDocuments(id);
   const { data: activities = [] } = useCompanyActivities(id);
+  const { data: peers = [] } = useCompanyPeers(company);
   const update = useUpdateCompany();
   const { uploadDocument, deleteDocument, downloadDocument } = useDocuments();
   const [edits, setEdits] = useState<Record<string, unknown>>({});
