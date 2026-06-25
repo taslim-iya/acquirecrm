@@ -31,6 +31,10 @@ import {
   Handshake,
   MessageCircle,
   GripVertical,
+  Lightbulb,
+  BookOpen,
+  Eye,
+  GraduationCap,
 } from 'lucide-react';
 import { useUnreadEmailCount } from '@/hooks/useEmails';
 
