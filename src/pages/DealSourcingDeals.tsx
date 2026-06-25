@@ -203,6 +203,7 @@ export default function DealSourcingDeals() {
                 <TableHead>Company</TableHead>
                 <TableHead>Stage</TableHead>
                 <TableHead>Source</TableHead>
+                <TableHead>MLP</TableHead>
                 <TableHead>Probability</TableHead>
                 <TableHead>Expected Close</TableHead>
                 <TableHead className="w-10" />
@@ -211,7 +212,8 @@ export default function DealSourcingDeals() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12">
+                  <TableCell colSpan={8} className="text-center py-12">
+
                     <p className="text-muted-foreground font-medium">No deals yet</p>
                     <p className="text-sm text-muted-foreground/60 mt-1">Create your first deal to start tracking</p>
                   </TableCell>
