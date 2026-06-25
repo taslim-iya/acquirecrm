@@ -215,6 +215,17 @@ export default function TargetUniverse() {
             {OWNERSHIP_OPTIONS.map(o => <SelectItem key={o} value={o} className="capitalize">{o}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Select value={industryFilter} onValueChange={setIndustryFilter}>
+          <SelectTrigger className="w-[180px] h-9">
+            <SelectValue placeholder="Industry / SIC" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Industries</SelectItem>
+            {industryOptions.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+          </SelectContent>
+        </Select>
+
+
 
         {/* Saved Filters */}
         {savedFilters.length > 0 && (
