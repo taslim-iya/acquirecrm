@@ -36,6 +36,7 @@ export default function TargetUniverse() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [ownershipFilter, setOwnershipFilter] = useState<string>('all');
+  const [industryFilter, setIndustryFilter] = useState<string>('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showSaveFilter, setShowSaveFilter] = useState(false);
   const [filterName, setFilterName] = useState('');
@@ -44,6 +45,13 @@ export default function TargetUniverse() {
   const [showBulkTag, setShowBulkTag] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [outreachCompany, setOutreachCompany] = useState<{ id: string; name: string } | null>(null);
+
+  const industryOptions = useMemo(() => {
+    const set = new Set<string>();
+    companies.forEach((c: any) => { if (c.industry) set.add(c.industry); });
+    return Array.from(set).sort();
+  }, [companies]);
+
 
   const handleImportCompanies = async (records: any[]) => {
     for (const record of records) {
