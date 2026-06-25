@@ -31,6 +31,10 @@ import {
   Handshake,
   MessageCircle,
   GripVertical,
+  Lightbulb,
+  BookOpen,
+  Eye,
+  GraduationCap,
 } from 'lucide-react';
 import { useUnreadEmailCount } from '@/hooks/useEmails';
 
@@ -67,6 +71,18 @@ const DEFAULT_DEAL_SOURCING_NAV: NavItem[] = [
   { name: 'Analytics', href: '/deal-sourcing-analytics', icon: BarChart3 },
 ];
 
+const DEFAULT_RESEARCH_NAV: NavItem[] = [
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Sectors', href: '/research/sectors', icon: Lightbulb },
+  { name: 'Watchlist', href: '/research/watchlist', icon: Eye },
+  { name: 'Companies', href: '/companies', icon: Building2 },
+  { name: 'Expert Network', href: '/research/experts', icon: GraduationCap },
+  { name: 'Source Library', href: '/research/sources', icon: BookOpen },
+  { name: 'Contacts', href: '/contacts', icon: Users },
+  { name: 'Documents', href: '/documents', icon: FileText },
+  { name: 'Notes', href: '/notes', icon: StickyNote },
+];
+
 const DEFAULT_BOTTOM_NAV: NavItem[] = [
   { name: 'AI Assistant', href: '/assistant', icon: Sparkles },
   { name: 'Notes', href: '/notes', icon: StickyNote },
@@ -82,7 +98,7 @@ const adminNav = [
 const ICON_MAP: Record<string, typeof LayoutDashboard> = {
   LayoutDashboard, Users, TrendingUp, Mail, Inbox, FileText, BarChart3,
   Settings, Sparkles, Calendar, StickyNote, PieChart, CheckSquare,
-  Shield, Building2, Search, Handshake, MessageCircle,
+  Shield, Building2, Search, Handshake, MessageCircle, Lightbulb, BookOpen, Eye, GraduationCap,
 };
 
 function getIconForName(name: string, defaults: NavItem[]): typeof LayoutDashboard {
@@ -142,30 +158,27 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 
 function ModeToggle() {
   const { mode, setMode } = useAppMode();
+  const modes: { value: 'fundraising' | 'deal-sourcing' | 'research'; label: string }[] = [
+    { value: 'fundraising', label: 'Fundraising' },
+    { value: 'deal-sourcing', label: 'Sourcing' },
+    { value: 'research', label: 'Research' },
+  ];
   return (
     <div className="flex rounded-lg bg-sidebar-accent/30 p-0.5">
-      <button
-        onClick={() => setMode('fundraising')}
-        className={cn(
-          'flex-1 text-xs font-medium py-1.5 px-2 rounded-md transition-all duration-200',
-          mode === 'fundraising'
-            ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
-            : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
-        )}
-      >
-        Fundraising
-      </button>
-      <button
-        onClick={() => setMode('deal-sourcing')}
-        className={cn(
-          'flex-1 text-xs font-medium py-1.5 px-2 rounded-md transition-all duration-200',
-          mode === 'deal-sourcing'
-            ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
-            : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
-        )}
-      >
-        Deal Sourcing
-      </button>
+      {modes.map((m) => (
+        <button
+          key={m.value}
+          onClick={() => setMode(m.value)}
+          className={cn(
+            'flex-1 text-xs font-medium py-1.5 px-2 rounded-md transition-all duration-200',
+            mode === m.value
+              ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
+              : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
+          )}
+        >
+          {m.label}
+        </button>
+      ))}
     </div>
   );
 }
@@ -215,10 +228,11 @@ function SidebarContentInner({ onNavigate }: { onNavigate?: () => void }) {
 
   const [fundraisingNav, setFundraisingNav] = usePersistedNav('sidebar-fundraising-order', DEFAULT_FUNDRAISING_NAV);
   const [dealSourcingNav, setDealSourcingNav] = usePersistedNav('sidebar-dealsourcing-order', DEFAULT_DEAL_SOURCING_NAV);
+  const [researchNav, setResearchNav] = usePersistedNav('sidebar-research-order', DEFAULT_RESEARCH_NAV);
   const [bottomNavItems, setBottomNavItems] = usePersistedNav('sidebar-bottom-order', DEFAULT_BOTTOM_NAV);
 
-  const mainNav = mode === 'deal-sourcing' ? dealSourcingNav : fundraisingNav;
-  const setMainNav = mode === 'deal-sourcing' ? setDealSourcingNav : setFundraisingNav;
+  const mainNav = mode === 'research' ? researchNav : mode === 'deal-sourcing' ? dealSourcingNav : fundraisingNav;
+  const setMainNav = mode === 'research' ? setResearchNav : mode === 'deal-sourcing' ? setDealSourcingNav : setFundraisingNav;
 
   const handleSignOut = async () => {
     if (isDemoMode) {

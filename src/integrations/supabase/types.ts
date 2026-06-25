@@ -315,7 +315,9 @@ export type Database = {
           ebitda_band: string | null
           employee_count: number | null
           estimated_valuation: number | null
+          founded_year: number | null
           geography: string | null
+          hq_location: string | null
           id: string
           industry: string | null
           last_touched_at: string | null
@@ -323,11 +325,17 @@ export type Database = {
           name: string
           notes: string | null
           ownership_type: string | null
+          peer_company_ids: string[] | null
+          research_status: string
           revenue: number | null
           revenue_band: string | null
           sic_code: string | null
           sic_codes: string[] | null
           stage: Database["public"]["Enums"]["deal_stage"]
+          thesis_kill_criteria: string | null
+          thesis_problem: string | null
+          thesis_success: string | null
+          thesis_why_now: string | null
           updated_at: string
           user_id: string
           website: string | null
@@ -344,7 +352,9 @@ export type Database = {
           ebitda_band?: string | null
           employee_count?: number | null
           estimated_valuation?: number | null
+          founded_year?: number | null
           geography?: string | null
+          hq_location?: string | null
           id?: string
           industry?: string | null
           last_touched_at?: string | null
@@ -352,11 +362,17 @@ export type Database = {
           name: string
           notes?: string | null
           ownership_type?: string | null
+          peer_company_ids?: string[] | null
+          research_status?: string
           revenue?: number | null
           revenue_band?: string | null
           sic_code?: string | null
           sic_codes?: string[] | null
           stage?: Database["public"]["Enums"]["deal_stage"]
+          thesis_kill_criteria?: string | null
+          thesis_problem?: string | null
+          thesis_success?: string | null
+          thesis_why_now?: string | null
           updated_at?: string
           user_id: string
           website?: string | null
@@ -373,7 +389,9 @@ export type Database = {
           ebitda_band?: string | null
           employee_count?: number | null
           estimated_valuation?: number | null
+          founded_year?: number | null
           geography?: string | null
+          hq_location?: string | null
           id?: string
           industry?: string | null
           last_touched_at?: string | null
@@ -381,11 +399,17 @@ export type Database = {
           name?: string
           notes?: string | null
           ownership_type?: string | null
+          peer_company_ids?: string[] | null
+          research_status?: string
           revenue?: number | null
           revenue_band?: string | null
           sic_code?: string | null
           sic_codes?: string[] | null
           stage?: Database["public"]["Enums"]["deal_stage"]
+          thesis_kill_criteria?: string | null
+          thesis_problem?: string | null
+          thesis_success?: string | null
+          thesis_why_now?: string | null
           updated_at?: string
           user_id?: string
           website?: string | null
@@ -1329,6 +1353,111 @@ export type Database = {
             columns: ["deal_id"]
             isOneToOne: false
             referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      research_sectors: {
+        Row: {
+          created_at: string
+          id: string
+          industry: string
+          notes: string | null
+          sic_codes: string[] | null
+          status: string
+          target_multiple: number | null
+          thesis_kill_criteria: string | null
+          thesis_problem: string | null
+          thesis_success: string | null
+          thesis_why_now: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          industry: string
+          notes?: string | null
+          sic_codes?: string[] | null
+          status?: string
+          target_multiple?: number | null
+          thesis_kill_criteria?: string | null
+          thesis_problem?: string | null
+          thesis_success?: string | null
+          thesis_why_now?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          industry?: string
+          notes?: string | null
+          sic_codes?: string[] | null
+          status?: string
+          target_multiple?: number | null
+          thesis_kill_criteria?: string | null
+          thesis_problem?: string | null
+          thesis_success?: string | null
+          thesis_why_now?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      research_sources: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          id: string
+          sector_id: string | null
+          source_type: string
+          summary: string | null
+          themes: string[] | null
+          title: string
+          updated_at: string
+          url: string | null
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          sector_id?: string | null
+          source_type?: string
+          summary?: string | null
+          themes?: string[] | null
+          title: string
+          updated_at?: string
+          url?: string | null
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          sector_id?: string | null
+          source_type?: string
+          summary?: string | null
+          themes?: string[] | null
+          title?: string
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "research_sources_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "research_sources_sector_id_fkey"
+            columns: ["sector_id"]
+            isOneToOne: false
+            referencedRelation: "research_sectors"
             referencedColumns: ["id"]
           },
         ]
