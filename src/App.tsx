@@ -93,6 +93,7 @@ const App = () => (
                           <Route path="/research/watchlist" element={<ResearchWatchlist />} />
                           <Route path="/research/experts" element={<ResearchExperts />} />
                           <Route path="/research/sources" element={<ResearchSources />} />
+                          <Route path="/research/heatmap" element={<ResearchHeatmap />} />
 
                           <Route path="/notes" element={<NotesPage />} />
                           <Route path="/support" element={<Support />} />
