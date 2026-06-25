@@ -32,6 +32,12 @@ import BrokersPage from "./pages/BrokersPage";
 import TargetUniverse from "./pages/TargetUniverse";
 import Support from "./pages/Support";
 import Notifications from "./pages/Notifications";
+import CompanyProfile from "./pages/CompanyProfile";
+import CompaniesList from "./pages/CompaniesList";
+import ResearchSectors from "./pages/ResearchSectors";
+import ResearchWatchlist from "./pages/ResearchWatchlist";
+import ResearchExperts from "./pages/ResearchExperts";
+import ResearchSources from "./pages/ResearchSources";
 
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
