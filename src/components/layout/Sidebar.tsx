@@ -158,30 +158,27 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 
 function ModeToggle() {
   const { mode, setMode } = useAppMode();
+  const modes: { value: 'fundraising' | 'deal-sourcing' | 'research'; label: string }[] = [
+    { value: 'fundraising', label: 'Fundraising' },
+    { value: 'deal-sourcing', label: 'Sourcing' },
+    { value: 'research', label: 'Research' },
+  ];
   return (
     <div className="flex rounded-lg bg-sidebar-accent/30 p-0.5">
-      <button
-        onClick={() => setMode('fundraising')}
-        className={cn(
-          'flex-1 text-xs font-medium py-1.5 px-2 rounded-md transition-all duration-200',
-          mode === 'fundraising'
-            ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
-            : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
-        )}
-      >
-        Fundraising
-      </button>
-      <button
-        onClick={() => setMode('deal-sourcing')}
-        className={cn(
-          'flex-1 text-xs font-medium py-1.5 px-2 rounded-md transition-all duration-200',
-          mode === 'deal-sourcing'
-            ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
-            : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
-        )}
-      >
-        Deal Sourcing
-      </button>
+      {modes.map((m) => (
+        <button
+          key={m.value}
+          onClick={() => setMode(m.value)}
+          className={cn(
+            'flex-1 text-xs font-medium py-1.5 px-2 rounded-md transition-all duration-200',
+            mode === m.value
+              ? 'bg-sidebar-accent text-sidebar-accent-foreground shadow-sm'
+              : 'text-sidebar-foreground/60 hover:text-sidebar-foreground'
+          )}
+        >
+          {m.label}
+        </button>
+      ))}
     </div>
   );
 }
