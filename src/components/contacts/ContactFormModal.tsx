@@ -371,13 +371,15 @@ export function ContactFormModal({ open, onOpenChange, contact }: ContactFormMod
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="source">Source</Label>
+              <Label htmlFor="source">Source *</Label>
               <Input
                 id="source"
                 value={formData.source}
                 onChange={(e) => setFormData((prev) => ({ ...prev, source: e.target.value }))}
                 placeholder="LinkedIn, Referral, etc."
+                className={errors.source ? 'border-destructive' : ''}
               />
+              {errors.source && <p className="text-xs text-destructive">{errors.source}</p>}
             </div>
           </div>
 
