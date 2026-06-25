@@ -1,63 +1,74 @@
+# Acquire CRM: Relational Rebuild
 
+This is a 4-phase plan. Each phase builds on the previous one — we have to do them in order. I'll pause for your approval between phases.
 
-# Send Emails Through Your Connected Gmail/Microsoft Account
+## Phase 1 — Fix the data model (foundation)
 
-## What This Changes
+Right now Contacts, Deals and Companies are loose entities with text fields instead of references. Nothing joins. We fix that.
 
-Currently, your app sends emails through **Resend** (a third-party email service) from `taslim@mungerlongview.com`. This update will instead send emails **directly through your connected Gmail or Microsoft account**, so:
+**Schema changes**
 
-- Emails appear in your actual **Sent folder**
-- Recipients see your real email address as the sender
-- Better deliverability and trust
-- Resend remains as a **fallback** if no provider is connected
+- `contacts.company_id` → FK to `companies.id` (keep `organization` text as fallback during migration, then drop later)
+- `deals.broker_id` → FK to `contacts.id` (broker is a contact, not a separate brokers table — collapse `brokers` into `contacts` with `contact_type='intermediary'`)
+- `deals.target_company_id` → FK to `companies.id` (the company being acquired)
+- New join table `deal_advisers` → (deal_id, contact_id, role enum: legal, financial, tax, commercial, other, notes) — one deal, many advisers
+- `companies.sic_codes` → text[] (pulls from the existing 167-code map; add a constant file `src/lib/sicCodes.ts`)
+- New `activities` table is already present — extend it: ensure (entity_type: 'contact'|'deal'|'company', entity_id, user_id, action, metadata jsonb, created_at). Backfill from existing activity hooks.
 
-## What You Need To Do
+**Migration approach**
 
-After this update, you will need to **reconnect your Google and/or Microsoft account** in Settings, because the app currently only has "read" permission for your email. It will need "send" permission too. This is a one-time step — just click disconnect and reconnect in Settings.
+- Add new FK columns as nullable, backfill by matching `contacts.organization` → `companies.name` (case-insensitive)
+- Keep old text columns for one release, mark deprecated in code
+- Add indexes on every new FK
+
+**Code changes**
+
+- Update `useContacts`, `useDeals`, `useCompanies` hooks to select joined data
+- Replace `brokers` references with contacts filtered by type
+- One new hook `useDealAdvisers(dealId)`
+
+## Phase 2 — Make the mode toggle real
+
+The Fundraising / Deal Sourcing toggle currently reskins nav. It should filter data.
+
+- Centralise filter logic in `useAppMode` — expose `contactTypeFilter` and `defaultColumns` per mode
+- Contacts page: Fundraising → default filter `investor`; Deal Sourcing → default filter `intermediary, owner, advisor, operator`
+- Different default column sets per mode (Fundraising shows warmth/likelihood/commitment; Sourcing shows company/role/SIC)
+- Pipeline page: Fundraising → investor_deals kanban; Sourcing → deals kanban (already split, just route from toggle)
+
+No new tables. Pure frontend work on top of Phase 1's joins.
+
+## Phase 3 — Roles, required fields, activity UI
+
+- Add `'intern'` to the existing `app_role` enum (admin, member, intern already partly exists — confirm and extend)
+- Gate `/cap-table` and investor commitment amounts behind `has_role('admin')` — both in RLS and route guards
+- Contact form: make `contact_type`, `company_id` (or new company name), and `source` required at form-validation level
+- Activity log UI: new tab on Contact and Deal detail pages showing the activities table filtered to that entity
+- Admin view: cross-user activity feed (already exists in admin analytics — extend to per-intern breakdown)
+
+## Phase 4 — Earned views
+
+Once the joins exist these are short:
+
+- Pipeline board column for MLP score (Money / Likelihood / Proximity — confirm the formula you want)
+- Adviser track record page: group `deal_advisers` by contact, count deals, win rate, avg size
+- Target Universe industry filter using `companies.sic_codes`
 
 ---
 
-## Technical Details
+## Technical notes
 
-### 1. Update Google OAuth Scopes
+- Phase 1 is one migration + ~6 hook updates + drops/renames in forms. Biggest risk: backfill accuracy on `organization → company_id`. We'll do fuzzy match + manual review queue.
+- `brokers` table consolidation into `contacts` is a one-way migration — we copy then drop. Confirm before we run it.
+- All FKs use `ON DELETE SET NULL` so deleting a company doesn't cascade-kill deals.
+- RLS policies extended for `deal_advisers` (owner of the deal can manage).
 
-**File:** `supabase/functions/google-oauth-init/index.ts`
+## Question before I start
 
-Add `https://www.googleapis.com/auth/gmail.send` to the requested scopes so the app can send emails on your behalf via Gmail.
+**1. The `brokers` table** — collapse it into `contacts` (cleaner) or keep it separate and just add the FK from deals (less disruptive)? I recommend collapse.
 
-### 2. Update Microsoft OAuth Scopes
+**2. MLP score formula** — what are the inputs and weights? I'll stub it as `warmth_score * likelihood * (1/days_since_last_contact)` unless you specify.
 
-**File:** `supabase/functions/microsoft-oauth-init/index.ts`
+**3. Backfill review** — for contacts whose `organization` text doesn't match an existing company, should I (a) auto-create the company, or (b) leave `company_id` null and surface a "needs review" list?
 
-Add `Mail.Send` to the requested scopes for Microsoft Graph API sending.
-
-### 3. Rewrite the Send Email Function
-
-**File:** `supabase/functions/send-email/index.ts`
-
-The function will be updated to:
-
-1. Check if the user has an active **Google** integration -- if so, use the Gmail API (`POST https://gmail.googleapis.com/gmail/v1/users/me/messages/send`) to send the email as a properly formatted RFC 2822 message with base64url encoding.
-
-2. If no Google integration, check for an active **Microsoft** integration -- if so, use the Microsoft Graph API (`POST https://graph.microsoft.com/v1.0/me/sendMail`) to send.
-
-3. If **neither** provider is connected, fall back to **Resend** (current behavior), so email sending never breaks.
-
-4. Token refresh logic (already proven in the sync functions) will be reused to handle expired OAuth tokens.
-
-5. Attachment support will be preserved for all three paths (Gmail, Microsoft, Resend).
-
-6. The email record saved to the database will reflect which provider was used (`external_provider: 'google' | 'microsoft' | 'resend'`).
-
-### 4. No Database Changes Needed
-
-The existing `emails` table already has `external_provider` and `external_id` columns that will store the provider used and the message ID returned by Gmail/Microsoft.
-
-### 5. Files Modified
-
-| File | Change |
-|------|--------|
-| `supabase/functions/google-oauth-init/index.ts` | Add `gmail.send` scope |
-| `supabase/functions/microsoft-oauth-init/index.ts` | Add `Mail.Send` scope |
-| `supabase/functions/send-email/index.ts` | Rewrite to try Gmail API, then Microsoft Graph, then Resend fallback |
-
+Approve Phase 1 and I'll write the migration.
