@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Upload, FileText, Loader2, Trash2, Download, Users, Globe, MapPin, DollarSign, Building2 } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, Loader2, Trash2, Download, Users, Globe, MapPin, DollarSign, Building2, GitCompare } from 'lucide-react';
 
 const RESEARCH_STATUS = [
   { value: 'none', label: 'None' },
