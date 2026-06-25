@@ -78,6 +78,7 @@ const DEFAULT_RESEARCH_NAV: NavItem[] = [
   { name: 'Companies', href: '/companies', icon: Building2 },
   { name: 'Expert Network', href: '/research/experts', icon: GraduationCap },
   { name: 'Source Library', href: '/research/sources', icon: BookOpen },
+  { name: 'Sector Heatmap', href: '/research/heatmap', icon: BarChart3 },
   { name: 'Contacts', href: '/contacts', icon: Users },
   { name: 'Documents', href: '/documents', icon: FileText },
   { name: 'Notes', href: '/notes', icon: StickyNote },
