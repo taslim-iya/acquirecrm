@@ -17,6 +17,9 @@ import { useCreateInvestorDeal } from '@/hooks/useInvestorDeals';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { DeduplicateContactsDialog } from '@/components/contacts/DeduplicateContactsDialog';
+import { useAppMode } from '@/hooks/useAppMode';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 type ContactType = Database['public']['Enums']['contact_type'];
 
@@ -39,8 +42,10 @@ const warmthColors: Record<string, string> = {
 export default function Contacts() {
   const { data: contacts = [], isLoading } = useContacts();
   const [searchQuery, setSearchQuery] = useState('');
+  const { mode, modeLabel, contactTypesForMode, isTypeInMode } = useAppMode();
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [warmthFilter, setWarmthFilter] = useState<string>('all');
+  const [showAllModes, setShowAllModes] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isDedupeOpen, setIsDedupeOpen] = useState(false);
   const createContact = useCreateContact();
@@ -67,9 +72,10 @@ export default function Contacts() {
     for (const record of records) {
       // Default imported contacts to 'investor' unless explicitly set to a valid non-default type
       const validTypes = ['investor', 'owner', 'intermediary', 'advisor', 'river_guide', 'operator'];
-      const contactType = record.contact_type && validTypes.includes(record.contact_type) 
-        ? record.contact_type 
-        : 'investor';
+      const defaultType = mode === 'fundraising' ? 'investor' : 'intermediary';
+      const contactType = record.contact_type && validTypes.includes(record.contact_type)
+        ? record.contact_type
+        : defaultType;
       const createdContact = await createContact.mutateAsync({
         name: record.name || 'Unknown',
         email: record.email || null,
@@ -128,11 +134,17 @@ export default function Contacts() {
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (c.organization?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
         (c.email?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+      const matchesMode = showAllModes || isTypeInMode(c.contact_type as any);
       const matchesType = typeFilter === 'all' || c.contact_type === typeFilter;
       const matchesWarmth = warmthFilter === 'all' || c.warmth === warmthFilter;
-      return matchesSearch && matchesType && matchesWarmth;
+      return matchesSearch && matchesMode && matchesType && matchesWarmth;
     });
-  }, [contacts, searchQuery, typeFilter, warmthFilter]);
+  }, [contacts, searchQuery, typeFilter, warmthFilter, showAllModes, isTypeInMode]);
+
+  const visibleTypeOptions = useMemo(
+    () => (showAllModes ? TYPE_OPTIONS : TYPE_OPTIONS.filter((t) => contactTypesForMode.includes(t.key))),
+    [showAllModes, contactTypesForMode]
+  );
 
   const toggleSelect = (id: string) => {
     const next = new Set(selectedIds);
@@ -160,7 +172,7 @@ export default function Contacts() {
     <div className="p-4 md:p-6">
       <PageHeader
         title="Contacts"
-        description="Manage your relationships"
+        description={showAllModes ? 'Manage your relationships (all modes)' : `${modeLabel} contacts`}
         actions={
           <div className="flex gap-2">
             {selectedIds.size > 0 && (
@@ -198,7 +210,7 @@ export default function Contacts() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
-            {TYPE_OPTIONS.map((t) => (
+            {visibleTypeOptions.map((t) => (
               <SelectItem key={t.key} value={t.key}>{t.label}</SelectItem>
             ))}
           </SelectContent>
@@ -214,6 +226,16 @@ export default function Contacts() {
             <SelectItem value="hot">Hot</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex items-center gap-2 ml-auto">
+          <Switch
+            id="show-all-modes"
+            checked={showAllModes}
+            onCheckedChange={(v) => { setShowAllModes(v); setTypeFilter('all'); }}
+          />
+          <Label htmlFor="show-all-modes" className="text-xs text-muted-foreground cursor-pointer">
+            Show all modes
+          </Label>
+        </div>
       </div>
 
       {/* Table */}
