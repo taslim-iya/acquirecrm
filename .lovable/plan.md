@@ -1,74 +1,65 @@
-# Acquire CRM: Relational Rebuild
+# Research Mode + Company Profiles
 
-This is a 4-phase plan. Each phase builds on the previous one — we have to do them in order. I'll pause for your approval between phases.
+## Part 1 — Research mode (third pillar alongside Fundraising & Deal Sourcing)
 
-## Phase 1 — Fix the data model (foundation)
+Extend `useAppMode` to support a new `'research'` mode. Toggle in the sidebar header cycles through Fundraising / Deal Sourcing / Research. Research mode reveals a dedicated nav section and filters Contacts to research-relevant types.
 
-Right now Contacts, Deals and Companies are loose entities with text fields instead of references. Nothing joins. We fix that.
+**New pages under Research:**
+1. **Sectors** (`/research/sectors`) — sector/SIC theses. Each row: industry, SIC codes, thesis notes, target multiple, status (active / monitoring / passed), linked companies count.
+2. **Watchlist** (`/research/watchlist`) — companies you're studying but not yet targets. Re-uses `companies` table with a new `research_status` field (`watchlist | active_research | promoted_to_target | passed`). One-click "Promote to Target Universe".
+3. **Expert Network** (`/research/experts`) — contacts tagged as `operator` / `advisor` / `river_guide`, with columns for expertise area, last call date, call notes. Re-uses contacts.
+4. **Source Library** (`/research/sources`) — reports, articles, podcasts. New `research_sources` table: title, url, source_type (report/article/podcast/transcript), themes (tags), summary, linked sectors/companies.
 
-**Schema changes**
+## Part 2 — Company Detail page
 
-- `contacts.company_id` → FK to `companies.id` (keep `organization` text as fallback during migration, then drop later)
-- `deals.broker_id` → FK to `contacts.id` (broker is a contact, not a separate brokers table — collapse `brokers` into `contacts` with `contact_type='intermediary'`)
-- `deals.target_company_id` → FK to `companies.id` (the company being acquired)
-- New join table `deal_advisers` → (deal_id, contact_id, role enum: legal, financial, tax, commercial, other, notes) — one deal, many advisers
-- `companies.sic_codes` → text[] (pulls from the existing 167-code map; add a constant file `src/lib/sicCodes.ts`)
-- New `activities` table is already present — extend it: ensure (entity_type: 'contact'|'deal'|'company', entity_id, user_id, action, metadata jsonb, created_at). Backfill from existing activity hooks.
+New route `/companies/:id` with 4 tabs:
 
-**Migration approach**
+- **Overview** — name, website, industry, SIC codes (multi-select from existing 167-code map), size, revenue, HQ, founded year, description, research thesis, status. Inline-editable like contacts table.
+- **Documents** — drag-and-drop upload scoped to this company. Reuses `documents` table (already has `company_id`). Same uploader + grid as Documents page, filtered by company.
+- **Contacts** — all contacts where `company_id = :id`, plus advisers from `deal_advisers` joining deals where this company is the target.
+- **Activity** — timeline of `activities`, `notes`, `emails`, `tasks`, `calendar_events` tied to the company or its linked contacts/deals. Reverse-chronological.
 
-- Add new FK columns as nullable, backfill by matching `contacts.organization` → `companies.name` (case-insensitive)
-- Keep old text columns for one release, mark deprecated in code
-- Add indexes on every new FK
+Company name in Contacts table, Target Universe, and Deal cards becomes a link to this page.
 
-**Code changes**
+## Part 3 — Three high-leverage additions
 
-- Update `useContacts`, `useDeals`, `useCompanies` hooks to select joined data
-- Replace `brokers` references with contacts filtered by type
-- One new hook `useDealAdvisers(dealId)`
+1. **Investment Thesis tracker** — per sector and per company, a structured thesis (problem, why now, what good looks like, kill criteria). Surfaces in Sector and Company pages; when a deal is passed, the Decision Log can reference which thesis criterion failed. Closes the loop with your existing decision journaling.
 
-## Phase 2 — Make the mode toggle real
+2. **Comp-set / Peer view** — on a Company page, pick 3-8 peer companies; auto-renders a side-by-side table (revenue, size, multiple, SIC). Exportable. Free once company data is structured — pure query layer.
 
-The Fundraising / Deal Sourcing toggle currently reskins nav. It should filter data.
+3. **Sector heatmap on Dashboard** — small grid: row = sector, columns = (# targets, # active deals, # passed, avg MLP, last activity). One glance shows where the pipeline is hot or cold. Drill-through to the sector page.
 
-- Centralise filter logic in `useAppMode` — expose `contactTypeFilter` and `defaultColumns` per mode
-- Contacts page: Fundraising → default filter `investor`; Deal Sourcing → default filter `intermediary, owner, advisor, operator`
-- Different default column sets per mode (Fundraising shows warmth/likelihood/commitment; Sourcing shows company/role/SIC)
-- Pipeline page: Fundraising → investor_deals kanban; Sourcing → deals kanban (already split, just route from toggle)
+## Technical section
 
-No new tables. Pure frontend work on top of Phase 1's joins.
+**Schema changes (one migration):**
+- `app_mode` handled client-side only — no DB change.
+- `companies`: add `research_status text default 'none'`, `thesis_problem text`, `thesis_why_now text`, `thesis_success text`, `thesis_kill_criteria text`, `peer_company_ids uuid[]`, `revenue numeric`, `employee_count int`, `hq_location text`, `founded_year int`, `website text` (skip any that already exist).
+- New table `research_sectors` — user_id, industry, sic_codes text[], thesis_*, status, target_multiple numeric. Standard RLS + GRANTs.
+- New table `research_sources` — user_id, title, url, source_type, themes text[], summary, sector_id fk, company_id fk. Standard RLS + GRANTs.
+- Index: `companies(user_id, research_status)`, `documents(company_id)`.
 
-## Phase 3 — Roles, required fields, activity UI
+**Frontend:**
+- `useAppMode`: add `'research'` to `AppMode`, extend `MODE_CONTACT_TYPES`.
+- `Sidebar`: render Research section when mode = research (Sectors, Watchlist, Experts, Sources, Companies).
+- New hooks: `useResearchSectors`, `useResearchSources`, `useCompany(id)` (single-company fetch with joined contacts + docs + activities).
+- New pages: `ResearchSectors`, `ResearchWatchlist`, `ResearchExperts`, `ResearchSources`, `CompanyProfile` (with Overview/Documents/Contacts/Activity tabs).
+- `Documents` upload flow: pass `companyId` (already supported in `useDocuments.uploadDocument`).
+- Wire company-name links in Contacts, TargetUniverse, DealSourcingDeals, InvestorCard.
+- Dashboard: add `SectorHeatmap` widget.
 
-- Add `'intern'` to the existing `app_role` enum (admin, member, intern already partly exists — confirm and extend)
-- Gate `/cap-table` and investor commitment amounts behind `has_role('admin')` — both in RLS and route guards
-- Contact form: make `contact_type`, `company_id` (or new company name), and `source` required at form-validation level
-- Activity log UI: new tab on Contact and Deal detail pages showing the activities table filtered to that entity
-- Admin view: cross-user activity feed (already exists in admin analytics — extend to per-intern breakdown)
+**Out of scope (ask separately if wanted):**
+- AI-generated thesis drafts from uploaded reports
+- Automated SIC tagging via Gemini parser
+- Public company financial data ingestion (would need an external API key)
 
-## Phase 4 — Earned views
+## Build order
 
-Once the joins exist these are short:
+1. Migration (companies fields + 2 new tables)
+2. `useAppMode` + Sidebar Research section
+3. CompanyProfile page (highest immediate value)
+4. Research pages (Sectors → Watchlist → Experts → Sources)
+5. Thesis fields wired into Company + Sector pages
+6. Peer comp-set view
+7. Sector heatmap on Dashboard
 
-- Pipeline board column for MLP score (Money / Likelihood / Proximity — confirm the formula you want)
-- Adviser track record page: group `deal_advisers` by contact, count deals, win rate, avg size
-- Target Universe industry filter using `companies.sic_codes`
-
----
-
-## Technical notes
-
-- Phase 1 is one migration + ~6 hook updates + drops/renames in forms. Biggest risk: backfill accuracy on `organization → company_id`. We'll do fuzzy match + manual review queue.
-- `brokers` table consolidation into `contacts` is a one-way migration — we copy then drop. Confirm before we run it.
-- All FKs use `ON DELETE SET NULL` so deleting a company doesn't cascade-kill deals.
-- RLS policies extended for `deal_advisers` (owner of the deal can manage).
-
-## Question before I start
-
-**1. The `brokers` table** — collapse it into `contacts` (cleaner) or keep it separate and just add the FK from deals (less disruptive)? I recommend collapse.
-
-**2. MLP score formula** — what are the inputs and weights? I'll stub it as `warmth_score * likelihood * (1/days_since_last_contact)` unless you specify.
-
-**3. Backfill review** — for contacts whose `organization` text doesn't match an existing company, should I (a) auto-create the company, or (b) leave `company_id` null and surface a "needs review" list?
-
-Approve Phase 1 and I'll write the migration.
+Approve to start, or tell me to trim/reorder.
