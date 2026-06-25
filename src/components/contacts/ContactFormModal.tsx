@@ -35,10 +35,10 @@ const contactSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
   email: z.string().trim().email('Invalid email').max(255).optional().or(z.literal('')),
   phone: z.string().trim().max(50).optional(),
-  organization: z.string().trim().max(200).optional(),
+  organization: z.string().trim().min(1, 'Organization is required').max(200),
   role: z.string().trim().max(100).optional(),
   geography: z.string().trim().max(100).optional(),
-  source: z.string().trim().max(100).optional(),
+  source: z.string().trim().min(1, 'Source is required').max(100),
   notes: z.string().trim().max(5000).optional(),
 });
 
