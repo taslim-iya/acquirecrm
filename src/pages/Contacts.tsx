@@ -225,6 +225,16 @@ export default function Contacts() {
             <SelectItem value="hot">Hot</SelectItem>
           </SelectContent>
         </Select>
+        <div className="flex items-center gap-2 ml-auto">
+          <Switch
+            id="show-all-modes"
+            checked={showAllModes}
+            onCheckedChange={(v) => { setShowAllModes(v); setTypeFilter('all'); }}
+          />
+          <Label htmlFor="show-all-modes" className="text-xs text-muted-foreground cursor-pointer">
+            Show all modes
+          </Label>
+        </div>
       </div>
 
       {/* Table */}
