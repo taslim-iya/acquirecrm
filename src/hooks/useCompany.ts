@@ -69,23 +69,22 @@ export function useCompanyActivities(companyId: string | undefined) {
       const { data: contacts } = await supabase.from('contacts').select('id').eq('company_id', companyId);
       const contactIds = (contacts || []).map((c: { id: string }) => c.id);
 
-      if (!contactIds.length) return [];
-      const activitiesRes: { data: { id: string; created_at: string; activity_type: string; description: string | null }[] | null } =
-        await supabase.from('activities').select('*').in('contact_id', contactIds).order('created_at', { ascending: false }).limit(50);
-      const notesRes: { data: { id: string; created_at: string; title: string | null; content: string | null }[] | null } =
-        await supabase.from('notes').select('*').in('contact_id', contactIds).order('created_at', { ascending: false }).limit(50);
-      const tasksRes: { data: { id: string; created_at: string; title: string; status: string }[] | null } =
-        await supabase.from('tasks').select('*').in('related_to_id', contactIds).order('created_at', { ascending: false }).limit(50);
+      if (!contactIds.length) return [] as { kind: string; id: string; created_at: string; title: string; subtitle?: string }[];
+      const [activitiesRes, notesRes, tasksRes] = await Promise.all([
+        supabase.from('activities').select('id, created_at, activity_type, description').in('contact_id', contactIds).order('created_at', { ascending: false }).limit(50),
+        supabase.from('notes').select('id, created_at, title, content').in('contact_id', contactIds).order('created_at', { ascending: false }).limit(50),
+        supabase.from('tasks').select('id, created_at, title, completed').in('contact_id', contactIds).order('created_at', { ascending: false }).limit(50),
+      ]);
 
       const items: { kind: string; id: string; created_at: string; title: string; subtitle?: string }[] = [];
-      (activitiesRes.data || []).forEach((a: { id: string; created_at: string; activity_type: string; description: string | null }) => {
+      (activitiesRes.data || []).forEach((a) => {
         items.push({ kind: 'activity', id: a.id, created_at: a.created_at, title: a.activity_type, subtitle: a.description || undefined });
       });
-      (notesRes.data || []).forEach((n: { id: string; created_at: string; title: string | null; content: string | null }) => {
+      (notesRes.data || []).forEach((n) => {
         items.push({ kind: 'note', id: n.id, created_at: n.created_at, title: n.title || 'Note', subtitle: n.content?.slice(0, 120) });
       });
-      (tasksRes.data || []).forEach((t: { id: string; created_at: string; title: string; status: string }) => {
-        items.push({ kind: 'task', id: t.id, created_at: t.created_at, title: t.title, subtitle: `Task • ${t.status}` });
+      (tasksRes.data || []).forEach((t) => {
+        items.push({ kind: 'task', id: t.id, created_at: t.created_at, title: t.title, subtitle: `Task • ${t.completed ? 'done' : 'open'}` });
       });
       return items.sort((a, b) => b.created_at.localeCompare(a.created_at));
     },
