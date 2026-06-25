@@ -8,7 +8,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBrokers, useCreateBroker, useUpdateBroker, useDeleteBroker } from '@/hooks/useBrokers';
-import { Plus, Search, Loader2, Trash2, Star, Building, Phone, Mail } from 'lucide-react';
+import { useDeals } from '@/hooks/useDeals';
+import { Plus, Search, Loader2, Trash2, Star, Building, Phone, Mail, TrendingUp } from 'lucide-react';
+import { useMemo } from 'react';
+
 
 export default function BrokersPage() {
   const { data: brokers = [], isLoading } = useBrokers();
