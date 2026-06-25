@@ -101,7 +101,12 @@ export function useCreateContact() {
           const merged = [...new Set([...existingTags, ...contact.tags])];
           if (merged.length !== existingTags.length) updates.tags = merged;
         }
+        // Update email if not set
+        if (contact.email && !existingContact.email) {
+          updates.email = contact.email;
+        }
         // Resolve / set company_id if missing
+
         if (!existingContact.company_id) {
           const cid = await resolveCompanyId(contact.organization);
           if (cid) updates.company_id = cid;
