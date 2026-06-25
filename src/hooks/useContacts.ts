@@ -31,8 +31,35 @@ export function useCreateContact() {
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
+  // Find-or-create a company for a given organization name (per user)
+  const resolveCompanyId = async (organization: string | null | undefined): Promise<string | null> => {
+    if (!user || !organization) return null;
+    const name = organization.trim();
+    if (!name) return null;
+
+    const { data: existing } = await supabase
+      .from('companies')
+      .select('id')
+      .eq('user_id', user.id)
+      .ilike('name', name)
+      .maybeSingle();
+    if (existing) return existing.id;
+
+    const { data: created, error } = await supabase
+      .from('companies')
+      .insert({ user_id: user.id, name, company_source: 'auto' })
+      .select('id')
+      .single();
+    if (error) {
+      console.error('Failed to auto-create company:', error);
+      return null;
+    }
+    return created.id;
+  };
+
   return useMutation({
     mutationFn: async (contact: Omit<ContactInsert, 'user_id'>) => {
+
       if (!user) throw new Error('User not authenticated');
 
       // Deduplicate: check for existing contact by email or name+organization
