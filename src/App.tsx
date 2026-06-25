@@ -86,6 +86,12 @@ const App = () => (
                           <Route path="/deal-sourcing-analytics" element={<DealSourcingAnalytics />} />
                           <Route path="/brokers" element={<BrokersPage />} />
                           <Route path="/target-universe" element={<TargetUniverse />} />
+                          <Route path="/companies" element={<CompaniesList />} />
+                          <Route path="/companies/:id" element={<CompanyProfile />} />
+                          <Route path="/research/sectors" element={<ResearchSectors />} />
+                          <Route path="/research/watchlist" element={<ResearchWatchlist />} />
+                          <Route path="/research/experts" element={<ResearchExperts />} />
+                          <Route path="/research/sources" element={<ResearchSources />} />
 
                           <Route path="/notes" element={<NotesPage />} />
                           <Route path="/support" element={<Support />} />
