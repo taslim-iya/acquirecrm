@@ -29,6 +29,7 @@ export function useDocuments() {
       const { data, error } = await supabase
         .from('documents')
         .select('*')
+        .is('deleted_at', null)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -105,17 +106,10 @@ export function useDocuments() {
     mutationFn: async (document: Document) => {
       if (!user) throw new Error('Not authenticated');
 
-      // Delete from storage
-      const { error: storageError } = await supabase.storage
-        .from('documents')
-        .remove([document.file_path]);
-
-      if (storageError) throw storageError;
-
-      // Delete metadata
+      // Soft delete - keep file in storage so it can be restored
       const { error } = await supabase
         .from('documents')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', document.id);
 
       if (error) throw error;

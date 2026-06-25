@@ -19,6 +19,7 @@ export function useInvestorDeals() {
       const { data, error } = await supabase
         .from('investor_deals')
         .select('*')
+        .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -79,7 +80,7 @@ export function useDeleteInvestorDeal() {
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('investor_deals')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
 
       if (error) throw error;

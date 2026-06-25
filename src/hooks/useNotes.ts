@@ -37,6 +37,7 @@ export function useNotes() {
       const { data, error } = await supabase
         .from('notes')
         .select('*')
+        .is('deleted_at', null)
         .order('is_pinned', { ascending: false })
         .order('updated_at', { ascending: false });
 
@@ -98,7 +99,7 @@ export function useDeleteNote() {
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('notes')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
 
       if (error) throw error;

@@ -19,6 +19,7 @@ export function useCompanies() {
       const { data, error } = await supabase
         .from('companies')
         .select('*')
+        .is('deleted_at', null)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -79,7 +80,7 @@ export function useDeleteCompany() {
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('companies')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
 
       if (error) throw error;

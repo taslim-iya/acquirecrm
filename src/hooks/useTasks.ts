@@ -22,6 +22,7 @@ export function useTasks() {
       const { data, error } = await supabase
         .from('tasks')
         .select('*, contacts(name), companies(name), investor_deals(name, organization)')
+        .is('deleted_at', null)
         .order('due_date', { ascending: true });
 
       if (error) throw error;
@@ -84,7 +85,7 @@ export function useDeleteTask() {
     mutationFn: async (id: string) => {
       const { error } = await supabase
         .from('tasks')
-        .delete()
+        .update({ deleted_at: new Date().toISOString() })
         .eq('id', id);
 
       if (error) throw error;

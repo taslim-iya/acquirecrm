@@ -46,6 +46,7 @@ export function useDeals() {
       const { data, error } = await supabase
         .from('deals')
         .select('*, companies(name, industry), brokers(firm, contact_name)')
+        .is('deleted_at', null)
         .order('updated_at', { ascending: false });
       if (error) throw error;
       return data as Deal[];
@@ -122,7 +123,7 @@ export function useDeleteDeal() {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('deals').delete().eq('id', id);
+      const { error } = await supabase.from('deals').update({ deleted_at: new Date().toISOString() }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => {
