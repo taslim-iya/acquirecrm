@@ -117,6 +117,25 @@ export default function BrokersPage() {
                     </div>
                   </TableCell>
                   <TableCell>
+                    {(() => {
+                      const s = brokerStats[broker.id];
+                      if (!s) return <span className="text-xs text-muted-foreground">No deals</span>;
+                      const winRate = s.total > 0 ? Math.round((s.won / s.total) * 100) : 0;
+                      return (
+                        <div className="flex items-center gap-2 text-xs">
+                          <TrendingUp className="w-3.5 h-3.5 text-primary" />
+                          <span className="font-medium text-foreground">{s.total}</span>
+                          <span className="text-muted-foreground">deals</span>
+                          {s.won > 0 && <span className="text-success">· {s.won} won</span>}
+                          {s.active > 0 && <span className="text-info">· {s.active} active</span>}
+                          {s.lost > 0 && <span className="text-destructive">· {s.lost} lost</span>}
+                          {s.total > 1 && <span className="text-muted-foreground">({winRate}%)</span>}
+                        </div>
+                      );
+                    })()}
+                  </TableCell>
+                  <TableCell>
+
                     <div className="flex gap-2">
                       {broker.email && (
                         <a href={`mailto:${broker.email}`} className="text-muted-foreground hover:text-primary">
