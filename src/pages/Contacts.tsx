@@ -72,9 +72,10 @@ export default function Contacts() {
     for (const record of records) {
       // Default imported contacts to 'investor' unless explicitly set to a valid non-default type
       const validTypes = ['investor', 'owner', 'intermediary', 'advisor', 'river_guide', 'operator'];
-      const contactType = record.contact_type && validTypes.includes(record.contact_type) 
-        ? record.contact_type 
-        : 'investor';
+      const defaultType = mode === 'fundraising' ? 'investor' : 'intermediary';
+      const contactType = record.contact_type && validTypes.includes(record.contact_type)
+        ? record.contact_type
+        : defaultType;
       const createdContact = await createContact.mutateAsync({
         name: record.name || 'Unknown',
         email: record.email || null,
