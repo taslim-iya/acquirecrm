@@ -87,6 +87,7 @@ export default function BrokersPage() {
               <TableHead>Coverage</TableHead>
               <TableHead>Geography</TableHead>
               <TableHead>Responsiveness</TableHead>
+              <TableHead>Track Record</TableHead>
               <TableHead>Contact Info</TableHead>
               <TableHead className="w-10" />
             </TableRow>
@@ -94,7 +95,8 @@ export default function BrokersPage() {
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12">
+                <TableCell colSpan={8} className="text-center py-12">
+
                   <Building className="w-10 h-10 mx-auto text-muted-foreground/40 mb-3" />
                   <p className="text-muted-foreground font-medium">No brokers yet</p>
                   <p className="text-sm text-muted-foreground/60 mt-1">Add your first broker contact to start tracking deal flow</p>
