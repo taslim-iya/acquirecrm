@@ -35,10 +35,10 @@ const contactSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
   email: z.string().trim().email('Invalid email').max(255).optional().or(z.literal('')),
   phone: z.string().trim().max(50).optional(),
-  organization: z.string().trim().max(200).optional(),
+  organization: z.string().trim().min(1, 'Organization is required').max(200),
   role: z.string().trim().max(100).optional(),
   geography: z.string().trim().max(100).optional(),
-  source: z.string().trim().max(100).optional(),
+  source: z.string().trim().min(1, 'Source is required').max(100),
   notes: z.string().trim().max(5000).optional(),
 });
 
@@ -312,13 +312,15 @@ export function ContactFormModal({ open, onOpenChange, contact }: ContactFormMod
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="organization">Organization</Label>
+              <Label htmlFor="organization">Organization *</Label>
               <Input
                 id="organization"
                 value={formData.organization}
                 onChange={(e) => setFormData((prev) => ({ ...prev, organization: e.target.value }))}
                 placeholder="Acme Ventures"
+                className={errors.organization ? 'border-destructive' : ''}
               />
+              {errors.organization && <p className="text-xs text-destructive">{errors.organization}</p>}
             </div>
           </div>
 
@@ -369,13 +371,15 @@ export function ContactFormModal({ open, onOpenChange, contact }: ContactFormMod
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="source">Source</Label>
+              <Label htmlFor="source">Source *</Label>
               <Input
                 id="source"
                 value={formData.source}
                 onChange={(e) => setFormData((prev) => ({ ...prev, source: e.target.value }))}
                 placeholder="LinkedIn, Referral, etc."
+                className={errors.source ? 'border-destructive' : ''}
               />
+              {errors.source && <p className="text-xs text-destructive">{errors.source}</p>}
             </div>
           </div>
 
