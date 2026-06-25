@@ -55,6 +55,8 @@ const stageOrder: InvestorStage[] = [
 export function InvestorCard({ deal, onEdit, onDelete }: InvestorCardProps) {
   const updateStage = useUpdateInvestorStage();
   const updateStageWithCommitment = useUpdateInvestorStageWithCommitment();
+  const updateInvestorDeal = useUpdateInvestorDeal();
+
   
   const [commitmentModalOpen, setCommitmentModalOpen] = useState(false);
   const [composeOpen, setComposeOpen] = useState(false);
