@@ -20,6 +20,9 @@ import { FollowUpSetupModal } from './FollowUpSetupModal';
 import { InvestorMessagesModal } from './InvestorMessagesModal';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { MLPScoreBadge } from '@/components/MLPScoreBadge';
+import { useUpdateInvestorDeal } from '@/hooks/useInvestorDeals';
+
 
 interface InvestorCardProps {
   deal: InvestorDeal;
