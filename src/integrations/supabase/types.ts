@@ -20,6 +20,7 @@ export type Database = {
           company_id: string | null
           contact_id: string | null
           created_at: string
+          deal_id: string | null
           description: string | null
           id: string
           investor_deal_id: string | null
@@ -31,6 +32,7 @@ export type Database = {
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
+          deal_id?: string | null
           description?: string | null
           id?: string
           investor_deal_id?: string | null
@@ -42,6 +44,7 @@ export type Database = {
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
+          deal_id?: string | null
           description?: string | null
           id?: string
           investor_deal_id?: string | null
@@ -61,6 +64,13 @@ export type Database = {
             columns: ["contact_id"]
             isOneToOne: false
             referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activities_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
             referencedColumns: ["id"]
           },
           {
@@ -316,6 +326,7 @@ export type Database = {
           revenue: number | null
           revenue_band: string | null
           sic_code: string | null
+          sic_codes: string[] | null
           stage: Database["public"]["Enums"]["deal_stage"]
           updated_at: string
           user_id: string
@@ -344,6 +355,7 @@ export type Database = {
           revenue?: number | null
           revenue_band?: string | null
           sic_code?: string | null
+          sic_codes?: string[] | null
           stage?: Database["public"]["Enums"]["deal_stage"]
           updated_at?: string
           user_id: string
@@ -372,6 +384,7 @@ export type Database = {
           revenue?: number | null
           revenue_band?: string | null
           sic_code?: string | null
+          sic_codes?: string[] | null
           stage?: Database["public"]["Enums"]["deal_stage"]
           updated_at?: string
           user_id?: string
@@ -389,6 +402,7 @@ export type Database = {
       }
       contacts: {
         Row: {
+          company_id: string | null
           contact_type: Database["public"]["Enums"]["contact_type"]
           created_at: string
           email: string | null
@@ -409,6 +423,7 @@ export type Database = {
           warmth: Database["public"]["Enums"]["warmth_level"] | null
         }
         Insert: {
+          company_id?: string | null
           contact_type?: Database["public"]["Enums"]["contact_type"]
           created_at?: string
           email?: string | null
@@ -429,6 +444,7 @@ export type Database = {
           warmth?: Database["public"]["Enums"]["warmth_level"] | null
         }
         Update: {
+          company_id?: string | null
           contact_type?: Database["public"]["Enums"]["contact_type"]
           created_at?: string
           email?: string | null
@@ -448,7 +464,63 @@ export type Database = {
           user_id?: string
           warmth?: Database["public"]["Enums"]["warmth_level"] | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deal_advisers: {
+        Row: {
+          contact_id: string
+          created_at: string
+          deal_id: string
+          id: string
+          notes: string | null
+          role: Database["public"]["Enums"]["adviser_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          deal_id: string
+          id?: string
+          notes?: string | null
+          role?: Database["public"]["Enums"]["adviser_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          deal_id?: string
+          id?: string
+          notes?: string | null
+          role?: Database["public"]["Enums"]["adviser_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deal_advisers_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deal_advisers_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       deals: {
         Row: {
@@ -467,6 +539,7 @@ export type Database = {
           id: string
           interest_rate: number | null
           leverage_pct: number | null
+          mlp_score: number | null
           name: string
           next_step: string | null
           notes: string | null
@@ -497,6 +570,7 @@ export type Database = {
           id?: string
           interest_rate?: number | null
           leverage_pct?: number | null
+          mlp_score?: number | null
           name: string
           next_step?: string | null
           notes?: string | null
@@ -527,6 +601,7 @@ export type Database = {
           id?: string
           interest_rate?: number | null
           leverage_pct?: number | null
+          mlp_score?: number | null
           name?: string
           next_step?: string | null
           notes?: string | null
@@ -1024,6 +1099,7 @@ export type Database = {
           geography: string | null
           id: string
           investor_type: string | null
+          mlp_score: number | null
           name: string
           notes: string | null
           organization: string | null
@@ -1038,6 +1114,7 @@ export type Database = {
           geography?: string | null
           id?: string
           investor_type?: string | null
+          mlp_score?: number | null
           name: string
           notes?: string | null
           organization?: string | null
@@ -1052,6 +1129,7 @@ export type Database = {
           geography?: string | null
           id?: string
           investor_type?: string | null
+          mlp_score?: number | null
           name?: string
           notes?: string | null
           organization?: string | null
@@ -1546,6 +1624,7 @@ export type Database = {
       }
     }
     Enums: {
+      adviser_role: "legal" | "financial" | "tax" | "commercial" | "other"
       app_role: "admin" | "moderator" | "user"
       contact_type:
         | "investor"
@@ -1718,6 +1797,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      adviser_role: ["legal", "financial", "tax", "commercial", "other"],
       app_role: ["admin", "moderator", "user"],
       contact_type: [
         "investor",
