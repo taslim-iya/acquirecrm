@@ -69,17 +69,13 @@ export function useCompanyActivities(companyId: string | undefined) {
       const { data: contacts } = await supabase.from('contacts').select('id').eq('company_id', companyId);
       const contactIds = (contacts || []).map((c: { id: string }) => c.id);
 
-      const [activitiesRes, notesRes, tasksRes] = await Promise.all([
-        contactIds.length
-          ? supabase.from('activities').select('*').in('contact_id', contactIds).order('created_at', { ascending: false }).limit(50)
-          : Promise.resolve({ data: [], error: null }),
-        contactIds.length
-          ? supabase.from('notes').select('*').in('contact_id', contactIds).order('created_at', { ascending: false }).limit(50)
-          : Promise.resolve({ data: [], error: null }),
-        contactIds.length
-          ? supabase.from('tasks').select('*').in('related_to_id', contactIds).order('created_at', { ascending: false }).limit(50)
-          : Promise.resolve({ data: [], error: null }),
-      ]);
+      if (!contactIds.length) return [];
+      const activitiesRes: { data: { id: string; created_at: string; activity_type: string; description: string | null }[] | null } =
+        await supabase.from('activities').select('*').in('contact_id', contactIds).order('created_at', { ascending: false }).limit(50);
+      const notesRes: { data: { id: string; created_at: string; title: string | null; content: string | null }[] | null } =
+        await supabase.from('notes').select('*').in('contact_id', contactIds).order('created_at', { ascending: false }).limit(50);
+      const tasksRes: { data: { id: string; created_at: string; title: string; status: string }[] | null } =
+        await supabase.from('tasks').select('*').in('related_to_id', contactIds).order('created_at', { ascending: false }).limit(50);
 
       const items: { kind: string; id: string; created_at: string; title: string; subtitle?: string }[] = [];
       (activitiesRes.data || []).forEach((a: { id: string; created_at: string; activity_type: string; description: string | null }) => {
