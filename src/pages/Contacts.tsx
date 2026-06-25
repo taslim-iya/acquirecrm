@@ -17,6 +17,9 @@ import { useCreateInvestorDeal } from '@/hooks/useInvestorDeals';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { DeduplicateContactsDialog } from '@/components/contacts/DeduplicateContactsDialog';
+import { useAppMode } from '@/hooks/useAppMode';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 type ContactType = Database['public']['Enums']['contact_type'];
 
