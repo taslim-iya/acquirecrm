@@ -20,6 +20,8 @@ import { DeduplicateContactsDialog } from '@/components/contacts/DeduplicateCont
 import { useAppMode } from '@/hooks/useAppMode';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { BulkActionBar } from '@/components/ui/BulkActionBar';
+import { useBulkSoftDelete } from '@/hooks/useBulkSoftDelete';
 
 type ContactType = Database['public']['Enums']['contact_type'];
 
@@ -115,16 +117,11 @@ export default function Contacts() {
     }
   };
 
+  const bulkDelete = useBulkSoftDelete('contacts');
   const handleBulkDelete = async () => {
     if (selectedIds.size === 0) return;
-    const count = selectedIds.size;
-    try {
-      await Promise.all(Array.from(selectedIds).map(id => deleteContact.mutateAsync(id)));
-      setSelectedIds(new Set());
-      toast.success(`Deleted ${count} contacts`);
-    } catch {
-      toast.error('Failed to delete some contacts');
-    }
+    await bulkDelete.mutateAsync(Array.from(selectedIds));
+    setSelectedIds(new Set());
   };
 
   const filtered = useMemo(() => {
@@ -175,11 +172,6 @@ export default function Contacts() {
         description={showAllModes ? 'Manage your relationships (all modes)' : `${modeLabel} contacts`}
         actions={
           <div className="flex gap-2">
-            {selectedIds.size > 0 && (
-              <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
-                <Trash2 className="w-4 h-4 mr-1" /> Delete {selectedIds.size}
-              </Button>
-            )}
             <Button variant="outline" size="sm" onClick={() => setIsDedupeOpen(true)}>
               <Merge className="w-4 h-4 mr-1" /> Deduplicate
             </Button>
@@ -351,6 +343,14 @@ export default function Contacts() {
       </div>
 
       <p className="text-xs text-muted-foreground mt-2">{filtered.length} of {contacts.length} contacts</p>
+
+      <BulkActionBar
+        count={selectedIds.size}
+        onClear={() => setSelectedIds(new Set())}
+        onDelete={handleBulkDelete}
+        entityLabel="contact"
+        disabled={bulkDelete.isPending}
+      />
 
       {/* Modals */}
       <ContactFormModal open={isFormOpen} onOpenChange={setIsFormOpen} contact={selectedContact} />
