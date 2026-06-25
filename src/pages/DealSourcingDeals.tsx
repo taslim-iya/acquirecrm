@@ -42,7 +42,9 @@ export default function DealSourcingDeals() {
   const { data: brokers = [] } = useBrokers();
   const createDeal = useCreateDeal();
   const updateStage = useUpdateDealStage();
+  const updateDeal = useUpdateDeal();
   const deleteDeal = useDeleteDeal();
+
 
   const [view, setView] = useState<'kanban' | 'table'>('kanban');
   const [search, setSearch] = useState('');
