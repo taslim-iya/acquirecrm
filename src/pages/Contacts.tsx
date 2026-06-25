@@ -133,11 +133,17 @@ export default function Contacts() {
         c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (c.organization?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false) ||
         (c.email?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false);
+      const matchesMode = showAllModes || isTypeInMode(c.contact_type as any);
       const matchesType = typeFilter === 'all' || c.contact_type === typeFilter;
       const matchesWarmth = warmthFilter === 'all' || c.warmth === warmthFilter;
-      return matchesSearch && matchesType && matchesWarmth;
+      return matchesSearch && matchesMode && matchesType && matchesWarmth;
     });
-  }, [contacts, searchQuery, typeFilter, warmthFilter]);
+  }, [contacts, searchQuery, typeFilter, warmthFilter, showAllModes, isTypeInMode]);
+
+  const visibleTypeOptions = useMemo(
+    () => (showAllModes ? TYPE_OPTIONS : TYPE_OPTIONS.filter((t) => contactTypesForMode.includes(t.key))),
+    [showAllModes, contactTypesForMode]
+  );
 
   const toggleSelect = (id: string) => {
     const next = new Set(selectedIds);
