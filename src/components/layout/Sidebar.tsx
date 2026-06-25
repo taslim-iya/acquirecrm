@@ -98,7 +98,7 @@ const adminNav = [
 const ICON_MAP: Record<string, typeof LayoutDashboard> = {
   LayoutDashboard, Users, TrendingUp, Mail, Inbox, FileText, BarChart3,
   Settings, Sparkles, Calendar, StickyNote, PieChart, CheckSquare,
-  Shield, Building2, Search, Handshake, MessageCircle,
+  Shield, Building2, Search, Handshake, MessageCircle, Lightbulb, BookOpen, Eye, GraduationCap,
 };
 
 function getIconForName(name: string, defaults: NavItem[]): typeof LayoutDashboard {
