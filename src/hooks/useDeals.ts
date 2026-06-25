@@ -30,6 +30,7 @@ export interface Deal {
   hold_period: number | null;
   ebitda_growth: number | null;
   notes: string | null;
+  mlp_score: number | null;
   created_at: string;
   updated_at: string;
   companies?: { name: string; industry: string | null } | null;
