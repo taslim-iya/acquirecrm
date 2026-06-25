@@ -82,6 +82,7 @@ export default function CompanyProfile() {
           <TabsTrigger value="overview"><Building2 className="w-4 h-4 mr-1.5" />Overview</TabsTrigger>
           <TabsTrigger value="documents"><FileText className="w-4 h-4 mr-1.5" />Documents ({documents.length})</TabsTrigger>
           <TabsTrigger value="contacts"><Users className="w-4 h-4 mr-1.5" />Contacts ({contacts.length})</TabsTrigger>
+          <TabsTrigger value="peers"><GitCompare className="w-4 h-4 mr-1.5" />Peers ({peers.length})</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
 
