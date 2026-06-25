@@ -1706,6 +1706,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_mode_access: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          mode: Database["public"]["Enums"]["app_mode"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          mode: Database["public"]["Enums"]["app_mode"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          mode?: Database["public"]["Enums"]["app_mode"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -1744,6 +1768,16 @@ export type Database = {
           stage: string
         }[]
       }
+      admin_list_team_members: {
+        Args: never
+        Returns: {
+          display_name: string
+          email: string
+          modes: string[]
+          roles: string[]
+          user_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1754,6 +1788,7 @@ export type Database = {
     }
     Enums: {
       adviser_role: "legal" | "financial" | "tax" | "commercial" | "other"
+      app_mode: "fundraising" | "deal-sourcing" | "research"
       app_role: "admin" | "moderator" | "user" | "intern" | "member"
       contact_type:
         | "investor"
@@ -1927,6 +1962,7 @@ export const Constants = {
   public: {
     Enums: {
       adviser_role: ["legal", "financial", "tax", "commercial", "other"],
+      app_mode: ["fundraising", "deal-sourcing", "research"],
       app_role: ["admin", "moderator", "user", "intern", "member"],
       contact_type: [
         "investor",

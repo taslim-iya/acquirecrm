@@ -44,6 +44,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import Admin from "./pages/Admin";
+import AdminTeam from "./pages/AdminTeam";
 import AdminWelcomeEmail from "./pages/AdminWelcomeEmail";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -101,8 +102,9 @@ const App = () => (
                           <Route path="/assistant" element={<Assistant />} />
                           <Route path="/settings" element={<Settings />} />
                           <Route path="/admin-analytics" element={<AdminRoute><AdminAnalytics /></AdminRoute>} />
-                          <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
-                          <Route path="/admin/welcome-email" element={<AdminRoute><AdminWelcomeEmail /></AdminRoute>} />
+                         <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+                         <Route path="/admin/team" element={<AdminRoute><AdminTeam /></AdminRoute>} />
+                         <Route path="/admin/welcome-email" element={<AdminRoute><AdminWelcomeEmail /></AdminRoute>} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </MainLayout>
