@@ -89,9 +89,13 @@ export default function TargetUniverse() {
         c.geography?.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === 'all' || c.company_status === statusFilter;
       const matchesOwnership = ownershipFilter === 'all' || c.ownership_type === ownershipFilter;
-      return matchesSearch && matchesStatus && matchesOwnership;
+      const matchesIndustry = industryFilter === 'all' ||
+        c.industry === industryFilter ||
+        (Array.isArray(c.sic_codes) && c.sic_codes.includes(industryFilter));
+      return matchesSearch && matchesStatus && matchesOwnership && matchesIndustry;
     });
-  }, [companies, search, statusFilter, ownershipFilter]);
+  }, [companies, search, statusFilter, ownershipFilter, industryFilter]);
+
 
   const handleAdd = () => {
     const tags = form.company_tags ? form.company_tags.split(',').map(t => t.trim()) : [];
