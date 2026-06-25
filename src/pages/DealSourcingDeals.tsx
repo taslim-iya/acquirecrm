@@ -10,9 +10,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDeals, useCreateDeal, useUpdateDealStage, useDeleteDeal, DEAL_STAGES, DEAL_STAGE_LABELS } from '@/hooks/useDeals';
+import { useDeals, useCreateDeal, useUpdateDeal, useUpdateDealStage, useDeleteDeal, DEAL_STAGES, DEAL_STAGE_LABELS } from '@/hooks/useDeals';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useBrokers } from '@/hooks/useBrokers';
+import { MLPScoreBadge } from '@/components/MLPScoreBadge';
+
 import { Plus, Search, Loader2, LayoutGrid, List, Trash2, ArrowRight, Upload, Mail } from 'lucide-react';
 import { SmartComposeModal } from '@/components/email/SmartComposeModal';
 import { ImportModal } from '@/components/import/ImportModal';
