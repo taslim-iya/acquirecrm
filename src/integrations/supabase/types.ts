@@ -181,6 +181,7 @@ export type Database = {
           coverage_geo: string | null
           coverage_sector: string | null
           created_at: string
+          deleted_at: string | null
           email: string | null
           firm: string
           id: string
@@ -195,6 +196,7 @@ export type Database = {
           coverage_geo?: string | null
           coverage_sector?: string | null
           created_at?: string
+          deleted_at?: string | null
           email?: string | null
           firm: string
           id?: string
@@ -209,6 +211,7 @@ export type Database = {
           coverage_geo?: string | null
           coverage_sector?: string | null
           created_at?: string
+          deleted_at?: string | null
           email?: string | null
           firm?: string
           id?: string
@@ -310,6 +313,7 @@ export type Database = {
           company_tags: string[] | null
           contact_id: string | null
           created_at: string
+          deleted_at: string | null
           description: string | null
           ebitda: number | null
           ebitda_band: string | null
@@ -347,6 +351,7 @@ export type Database = {
           company_tags?: string[] | null
           contact_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           ebitda?: number | null
           ebitda_band?: string | null
@@ -384,6 +389,7 @@ export type Database = {
           company_tags?: string[] | null
           contact_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           ebitda?: number | null
           ebitda_band?: string | null
@@ -429,6 +435,7 @@ export type Database = {
           company_id: string | null
           contact_type: Database["public"]["Enums"]["contact_type"]
           created_at: string
+          deleted_at: string | null
           email: string | null
           geography: string | null
           id: string
@@ -450,6 +457,7 @@ export type Database = {
           company_id?: string | null
           contact_type?: Database["public"]["Enums"]["contact_type"]
           created_at?: string
+          deleted_at?: string | null
           email?: string | null
           geography?: string | null
           id?: string
@@ -471,6 +479,7 @@ export type Database = {
           company_id?: string | null
           contact_type?: Database["public"]["Enums"]["contact_type"]
           created_at?: string
+          deleted_at?: string | null
           email?: string | null
           geography?: string | null
           id?: string
@@ -554,6 +563,7 @@ export type Database = {
           customer_concentration: string | null
           deal_ebitda: number | null
           deal_revenue: number | null
+          deleted_at: string | null
           ebitda_growth: number | null
           ebitda_margin: number | null
           entry_multiple: number | null
@@ -585,6 +595,7 @@ export type Database = {
           customer_concentration?: string | null
           deal_ebitda?: number | null
           deal_revenue?: number | null
+          deleted_at?: string | null
           ebitda_growth?: number | null
           ebitda_margin?: number | null
           entry_multiple?: number | null
@@ -616,6 +627,7 @@ export type Database = {
           customer_concentration?: string | null
           deal_ebitda?: number | null
           deal_revenue?: number | null
+          deleted_at?: string | null
           ebitda_growth?: number | null
           ebitda_margin?: number | null
           entry_multiple?: number | null
@@ -768,6 +780,7 @@ export type Database = {
           company_id: string | null
           contact_id: string | null
           created_at: string
+          deleted_at: string | null
           document_type: string
           file_path: string
           file_type: string
@@ -782,6 +795,7 @@ export type Database = {
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           document_type?: string
           file_path: string
           file_type: string
@@ -796,6 +810,7 @@ export type Database = {
           company_id?: string | null
           contact_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           document_type?: string
           file_path?: string
           file_type?: string
@@ -1120,6 +1135,7 @@ export type Database = {
           commitment_amount: number | null
           contact_id: string | null
           created_at: string
+          deleted_at: string | null
           geography: string | null
           id: string
           investor_type: string | null
@@ -1135,6 +1151,7 @@ export type Database = {
           commitment_amount?: number | null
           contact_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           geography?: string | null
           id?: string
           investor_type?: string | null
@@ -1150,6 +1167,7 @@ export type Database = {
           commitment_amount?: number | null
           contact_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           geography?: string | null
           id?: string
           investor_type?: string | null
@@ -1214,6 +1232,7 @@ export type Database = {
           contact_id: string | null
           content: string | null
           created_at: string
+          deleted_at: string | null
           id: string
           investor_deal_id: string | null
           is_pinned: boolean | null
@@ -1227,6 +1246,7 @@ export type Database = {
           contact_id?: string | null
           content?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           investor_deal_id?: string | null
           is_pinned?: boolean | null
@@ -1240,6 +1260,7 @@ export type Database = {
           contact_id?: string | null
           content?: string | null
           created_at?: string
+          deleted_at?: string | null
           id?: string
           investor_deal_id?: string | null
           is_pinned?: boolean | null
@@ -1576,6 +1597,7 @@ export type Database = {
           completed: boolean | null
           contact_id: string | null
           created_at: string
+          deleted_at: string | null
           description: string | null
           due_date: string | null
           id: string
@@ -1591,6 +1613,7 @@ export type Database = {
           completed?: boolean | null
           contact_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -1606,6 +1629,7 @@ export type Database = {
           completed?: boolean | null
           contact_id?: string | null
           created_at?: string
+          deleted_at?: string | null
           description?: string | null
           due_date?: string | null
           id?: string
@@ -1748,6 +1772,27 @@ export type Database = {
         }
         Relationships: []
       }
+      user_section_access: {
+        Row: {
+          created_at: string
+          id: string
+          section: Database["public"]["Enums"]["app_section"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          section: Database["public"]["Enums"]["app_section"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          section?: Database["public"]["Enums"]["app_section"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -1775,6 +1820,7 @@ export type Database = {
           email: string
           modes: string[]
           roles: string[]
+          sections: string[]
           user_id: string
         }[]
       }
@@ -1785,11 +1831,29 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_section_access: {
+        Args: {
+          _section: Database["public"]["Enums"]["app_section"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       adviser_role: "legal" | "financial" | "tax" | "commercial" | "other"
       app_mode: "fundraising" | "deal-sourcing" | "research"
       app_role: "admin" | "moderator" | "user" | "intern" | "member"
+      app_section:
+        | "dashboard"
+        | "deals"
+        | "contacts"
+        | "investors"
+        | "cap_table"
+        | "brokers"
+        | "target_universe"
+        | "documents"
+        | "analytics"
+        | "admin"
       contact_type:
         | "investor"
         | "owner"
@@ -1964,6 +2028,18 @@ export const Constants = {
       adviser_role: ["legal", "financial", "tax", "commercial", "other"],
       app_mode: ["fundraising", "deal-sourcing", "research"],
       app_role: ["admin", "moderator", "user", "intern", "member"],
+      app_section: [
+        "dashboard",
+        "deals",
+        "contacts",
+        "investors",
+        "cap_table",
+        "brokers",
+        "target_universe",
+        "documents",
+        "analytics",
+        "admin",
+      ],
       contact_type: [
         "investor",
         "owner",
