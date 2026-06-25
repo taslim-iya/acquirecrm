@@ -160,7 +160,7 @@ export default function CompanyProfile() {
                 <div key={c.id} className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/40">
                   <div>
                     <p className="text-sm font-medium">{c.name}</p>
-                    <p className="text-xs text-muted-foreground">{c.title || c.email || '—'}</p>
+                    <p className="text-xs text-muted-foreground">{c.role || c.email || '—'}</p>
                   </div>
                   <Badge variant="secondary">{c.contact_type}</Badge>
                 </div>
