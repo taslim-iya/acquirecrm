@@ -209,7 +209,7 @@ export default function Contacts() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Types</SelectItem>
-            {TYPE_OPTIONS.map((t) => (
+            {visibleTypeOptions.map((t) => (
               <SelectItem key={t.key} value={t.key}>{t.label}</SelectItem>
             ))}
           </SelectContent>
