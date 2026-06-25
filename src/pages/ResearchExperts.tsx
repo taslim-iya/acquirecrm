@@ -28,7 +28,7 @@ export default function ResearchExperts() {
                 <div className="flex items-start justify-between mb-2">
                   <div>
                     <p className="font-medium">{e.name}</p>
-                    <p className="text-xs text-muted-foreground">{e.title || e.organization || '—'}</p>
+                    <p className="text-xs text-muted-foreground">{e.role || e.organization || '—'}</p>
                   </div>
                   <Badge variant="secondary" className="capitalize">{e.contact_type.replace(/_/g, ' ')}</Badge>
                 </div>
