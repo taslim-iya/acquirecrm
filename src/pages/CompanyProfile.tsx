@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useCompany, useCompanyContacts, useCompanyDocuments, useCompanyActivities } from '@/hooks/useCompany';
+import { useCompany, useCompanyContacts, useCompanyDocuments, useCompanyActivities, useCompanyPeers } from '@/hooks/useCompany';
 import { useUpdateCompany } from '@/hooks/useCompanies';
 import { useDocuments } from '@/hooks/useDocuments';
 import { PageHeader } from '@/components/ui/PageHeader';
