@@ -38,6 +38,7 @@ import ResearchSectors from "./pages/ResearchSectors";
 import ResearchWatchlist from "./pages/ResearchWatchlist";
 import ResearchExperts from "./pages/ResearchExperts";
 import ResearchSources from "./pages/ResearchSources";
+import ResearchHeatmap from "./pages/ResearchHeatmap";
 
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
