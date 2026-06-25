@@ -71,6 +71,18 @@ const DEFAULT_DEAL_SOURCING_NAV: NavItem[] = [
   { name: 'Analytics', href: '/deal-sourcing-analytics', icon: BarChart3 },
 ];
 
+const DEFAULT_RESEARCH_NAV: NavItem[] = [
+  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Sectors', href: '/research/sectors', icon: Lightbulb },
+  { name: 'Watchlist', href: '/research/watchlist', icon: Eye },
+  { name: 'Companies', href: '/companies', icon: Building2 },
+  { name: 'Expert Network', href: '/research/experts', icon: GraduationCap },
+  { name: 'Source Library', href: '/research/sources', icon: BookOpen },
+  { name: 'Contacts', href: '/contacts', icon: Users },
+  { name: 'Documents', href: '/documents', icon: FileText },
+  { name: 'Notes', href: '/notes', icon: StickyNote },
+];
+
 const DEFAULT_BOTTOM_NAV: NavItem[] = [
   { name: 'AI Assistant', href: '/assistant', icon: Sparkles },
   { name: 'Notes', href: '/notes', icon: StickyNote },
