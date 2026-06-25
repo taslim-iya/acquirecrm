@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useCompany, useCompanyContacts, useCompanyDocuments, useCompanyActivities } from '@/hooks/useCompany';
+import { useCompany, useCompanyContacts, useCompanyDocuments, useCompanyActivities, useCompanyPeers } from '@/hooks/useCompany';
 import { useUpdateCompany } from '@/hooks/useCompanies';
 import { useDocuments } from '@/hooks/useDocuments';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Upload, FileText, Loader2, Trash2, Download, Users, Globe, MapPin, DollarSign, Building2 } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, Loader2, Trash2, Download, Users, Globe, MapPin, DollarSign, Building2, GitCompare } from 'lucide-react';
 
 const RESEARCH_STATUS = [
   { value: 'none', label: 'None' },
@@ -28,6 +28,7 @@ export default function CompanyProfile() {
   const { data: contacts = [] } = useCompanyContacts(id);
   const { data: documents = [] } = useCompanyDocuments(id);
   const { data: activities = [] } = useCompanyActivities(id);
+  const { data: peers = [] } = useCompanyPeers(company);
   const update = useUpdateCompany();
   const { uploadDocument, deleteDocument, downloadDocument } = useDocuments();
   const [edits, setEdits] = useState<Record<string, unknown>>({});
@@ -81,6 +82,7 @@ export default function CompanyProfile() {
           <TabsTrigger value="overview"><Building2 className="w-4 h-4 mr-1.5" />Overview</TabsTrigger>
           <TabsTrigger value="documents"><FileText className="w-4 h-4 mr-1.5" />Documents ({documents.length})</TabsTrigger>
           <TabsTrigger value="contacts"><Users className="w-4 h-4 mr-1.5" />Contacts ({contacts.length})</TabsTrigger>
+          <TabsTrigger value="peers"><GitCompare className="w-4 h-4 mr-1.5" />Peers ({peers.length})</TabsTrigger>
           <TabsTrigger value="activity">Activity</TabsTrigger>
         </TabsList>
 
@@ -184,6 +186,44 @@ export default function CompanyProfile() {
                   <p className="text-xs text-muted-foreground shrink-0">{new Date(a.created_at).toLocaleDateString()}</p>
                 </div>
               ))}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="peers" className="mt-4">
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-xs text-muted-foreground mb-3">Peers share industry or SIC codes with {company.name}.</p>
+              {peers.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-6">No peer companies found. Set industry or SIC codes to surface peers.</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="text-xs text-muted-foreground border-b">
+                      <tr>
+                        <th className="text-left py-2 px-2">Company</th>
+                        <th className="text-left py-2 px-2">Industry</th>
+                        <th className="text-right py-2 px-2">Revenue</th>
+                        <th className="text-right py-2 px-2">Employees</th>
+                        <th className="text-right py-2 px-2">Founded</th>
+                        <th className="text-left py-2 px-2">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {peers.map((p) => (
+                        <tr key={p.id} className="border-b hover:bg-muted/40">
+                          <td className="py-2 px-2 font-medium"><Link to={`/companies/${p.id}`} className="hover:underline">{p.name}</Link></td>
+                          <td className="py-2 px-2 text-muted-foreground">{p.industry || '—'}</td>
+                          <td className="py-2 px-2 text-right tabular-nums">{p.revenue ? `$${Number(p.revenue).toLocaleString()}` : '—'}</td>
+                          <td className="py-2 px-2 text-right tabular-nums">{p.employee_count ?? '—'}</td>
+                          <td className="py-2 px-2 text-right tabular-nums">{p.founded_year ?? '—'}</td>
+                          <td className="py-2 px-2"><Badge variant="outline" className="capitalize">{(p.research_status || 'none').replace(/_/g, ' ')}</Badge></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

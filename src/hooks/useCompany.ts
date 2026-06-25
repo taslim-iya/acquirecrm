@@ -91,3 +91,29 @@ export function useCompanyActivities(companyId: string | undefined) {
     enabled: !!user && !!companyId,
   });
 }
+
+export function useCompanyPeers(company: Company | null | undefined) {
+  const { user } = useAuth();
+  return useQuery({
+    queryKey: ['company-peers', company?.id, company?.industry, company?.sic_codes],
+    queryFn: async () => {
+      if (!company) return [];
+      const sic = (company.sic_codes || []) as string[];
+      let query = supabase.from('companies').select('*').neq('id', company.id);
+      if (company.industry && sic.length) {
+        query = query.or(`industry.eq.${company.industry},sic_codes.ov.{${sic.join(',')}}`);
+      } else if (company.industry) {
+        query = query.eq('industry', company.industry);
+      } else if (sic.length) {
+        query = query.overlaps('sic_codes', sic);
+      } else {
+        return [];
+      }
+      const { data, error } = await query.limit(25);
+      if (error) throw error;
+      return (data || []) as Company[];
+    },
+    enabled: !!user && !!company,
+  });
+}
+
