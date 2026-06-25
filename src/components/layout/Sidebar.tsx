@@ -228,10 +228,11 @@ function SidebarContentInner({ onNavigate }: { onNavigate?: () => void }) {
 
   const [fundraisingNav, setFundraisingNav] = usePersistedNav('sidebar-fundraising-order', DEFAULT_FUNDRAISING_NAV);
   const [dealSourcingNav, setDealSourcingNav] = usePersistedNav('sidebar-dealsourcing-order', DEFAULT_DEAL_SOURCING_NAV);
+  const [researchNav, setResearchNav] = usePersistedNav('sidebar-research-order', DEFAULT_RESEARCH_NAV);
   const [bottomNavItems, setBottomNavItems] = usePersistedNav('sidebar-bottom-order', DEFAULT_BOTTOM_NAV);
 
-  const mainNav = mode === 'deal-sourcing' ? dealSourcingNav : fundraisingNav;
-  const setMainNav = mode === 'deal-sourcing' ? setDealSourcingNav : setFundraisingNav;
+  const mainNav = mode === 'research' ? researchNav : mode === 'deal-sourcing' ? dealSourcingNav : fundraisingNav;
+  const setMainNav = mode === 'research' ? setResearchNav : mode === 'deal-sourcing' ? setDealSourcingNav : setFundraisingNav;
 
   const handleSignOut = async () => {
     if (isDemoMode) {
