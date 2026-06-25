@@ -10,9 +10,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDeals, useCreateDeal, useUpdateDealStage, useDeleteDeal, DEAL_STAGES, DEAL_STAGE_LABELS } from '@/hooks/useDeals';
+import { useDeals, useCreateDeal, useUpdateDeal, useUpdateDealStage, useDeleteDeal, DEAL_STAGES, DEAL_STAGE_LABELS } from '@/hooks/useDeals';
 import { useCompanies } from '@/hooks/useCompanies';
 import { useBrokers } from '@/hooks/useBrokers';
+import { MLPScoreBadge } from '@/components/MLPScoreBadge';
+
 import { Plus, Search, Loader2, LayoutGrid, List, Trash2, ArrowRight, Upload, Mail } from 'lucide-react';
 import { SmartComposeModal } from '@/components/email/SmartComposeModal';
 import { ImportModal } from '@/components/import/ImportModal';
@@ -40,7 +42,9 @@ export default function DealSourcingDeals() {
   const { data: brokers = [] } = useBrokers();
   const createDeal = useCreateDeal();
   const updateStage = useUpdateDealStage();
+  const updateDeal = useUpdateDeal();
   const deleteDeal = useDeleteDeal();
+
 
   const [view, setView] = useState<'kanban' | 'table'>('kanban');
   const [search, setSearch] = useState('');
@@ -167,9 +171,10 @@ export default function DealSourcingDeals() {
                       <div className="flex items-center justify-between mt-2">
                         <Badge variant="outline" className="text-[10px] capitalize">{deal.source || 'proprietary'}</Badge>
                         <div className="flex items-center gap-1">
-                          {deal.probability != null && (
-                            <span className="text-[10px] text-muted-foreground">{deal.probability}%</span>
-                          )}
+                          <MLPScoreBadge
+                            score={(deal as any).mlp_score}
+                            onChange={(score) => updateDeal.mutate({ id: deal.id, mlp_score: score } as any)}
+                          />
                           <Button
                             variant="ghost"
                             size="icon"
@@ -181,6 +186,7 @@ export default function DealSourcingDeals() {
                           </Button>
                         </div>
                       </div>
+
                     </Card>
                   ))
                 )}
@@ -197,6 +203,7 @@ export default function DealSourcingDeals() {
                 <TableHead>Company</TableHead>
                 <TableHead>Stage</TableHead>
                 <TableHead>Source</TableHead>
+                <TableHead>MLP</TableHead>
                 <TableHead>Probability</TableHead>
                 <TableHead>Expected Close</TableHead>
                 <TableHead className="w-10" />
@@ -205,7 +212,8 @@ export default function DealSourcingDeals() {
             <TableBody>
               {filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12">
+                  <TableCell colSpan={8} className="text-center py-12">
+
                     <p className="text-muted-foreground font-medium">No deals yet</p>
                     <p className="text-sm text-muted-foreground/60 mt-1">Create your first deal to start tracking</p>
                   </TableCell>
@@ -223,7 +231,14 @@ export default function DealSourcingDeals() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground capitalize">{deal.source || '—'}</TableCell>
+                    <TableCell>
+                      <MLPScoreBadge
+                        score={(deal as any).mlp_score}
+                        onChange={(score) => updateDeal.mutate({ id: deal.id, mlp_score: score } as any)}
+                      />
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{deal.probability != null ? `${deal.probability}%` : '—'}</TableCell>
+
                     <TableCell className="text-muted-foreground">
                       {deal.expected_close_date ? format(new Date(deal.expected_close_date), 'MMM d, yyyy') : '—'}
                     </TableCell>

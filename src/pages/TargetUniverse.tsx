@@ -36,6 +36,7 @@ export default function TargetUniverse() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [ownershipFilter, setOwnershipFilter] = useState<string>('all');
+  const [industryFilter, setIndustryFilter] = useState<string>('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [showSaveFilter, setShowSaveFilter] = useState(false);
   const [filterName, setFilterName] = useState('');
@@ -44,6 +45,13 @@ export default function TargetUniverse() {
   const [showBulkTag, setShowBulkTag] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [outreachCompany, setOutreachCompany] = useState<{ id: string; name: string } | null>(null);
+
+  const industryOptions = useMemo(() => {
+    const set = new Set<string>();
+    companies.forEach((c: any) => { if (c.industry) set.add(c.industry); });
+    return Array.from(set).sort();
+  }, [companies]);
+
 
   const handleImportCompanies = async (records: any[]) => {
     for (const record of records) {
@@ -81,9 +89,13 @@ export default function TargetUniverse() {
         c.geography?.toLowerCase().includes(search.toLowerCase());
       const matchesStatus = statusFilter === 'all' || c.company_status === statusFilter;
       const matchesOwnership = ownershipFilter === 'all' || c.ownership_type === ownershipFilter;
-      return matchesSearch && matchesStatus && matchesOwnership;
+      const matchesIndustry = industryFilter === 'all' ||
+        c.industry === industryFilter ||
+        (Array.isArray(c.sic_codes) && c.sic_codes.includes(industryFilter));
+      return matchesSearch && matchesStatus && matchesOwnership && matchesIndustry;
     });
-  }, [companies, search, statusFilter, ownershipFilter]);
+  }, [companies, search, statusFilter, ownershipFilter, industryFilter]);
+
 
   const handleAdd = () => {
     const tags = form.company_tags ? form.company_tags.split(',').map(t => t.trim()) : [];
@@ -203,6 +215,17 @@ export default function TargetUniverse() {
             {OWNERSHIP_OPTIONS.map(o => <SelectItem key={o} value={o} className="capitalize">{o}</SelectItem>)}
           </SelectContent>
         </Select>
+        <Select value={industryFilter} onValueChange={setIndustryFilter}>
+          <SelectTrigger className="w-[180px] h-9">
+            <SelectValue placeholder="Industry / SIC" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Industries</SelectItem>
+            {industryOptions.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+          </SelectContent>
+        </Select>
+
+
 
         {/* Saved Filters */}
         {savedFilters.length > 0 && (

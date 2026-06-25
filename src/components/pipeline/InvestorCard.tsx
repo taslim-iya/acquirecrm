@@ -20,6 +20,9 @@ import { FollowUpSetupModal } from './FollowUpSetupModal';
 import { InvestorMessagesModal } from './InvestorMessagesModal';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { MLPScoreBadge } from '@/components/MLPScoreBadge';
+import { useUpdateInvestorDeal } from '@/hooks/useInvestorDeals';
+
 
 interface InvestorCardProps {
   deal: InvestorDeal;
@@ -52,6 +55,8 @@ const stageOrder: InvestorStage[] = [
 export function InvestorCard({ deal, onEdit, onDelete }: InvestorCardProps) {
   const updateStage = useUpdateInvestorStage();
   const updateStageWithCommitment = useUpdateInvestorStageWithCommitment();
+  const updateInvestorDeal = useUpdateInvestorDeal();
+
   
   const [commitmentModalOpen, setCommitmentModalOpen] = useState(false);
   const [composeOpen, setComposeOpen] = useState(false);
@@ -206,13 +211,20 @@ export function InvestorCard({ deal, onEdit, onDelete }: InvestorCardProps) {
         </DropdownMenu>
       </div>
 
-      {/* Commitment badge */}
-      {commitmentDisplay && (
-        <div className="inline-flex items-center gap-1.5 text-xs font-medium text-success bg-success/10 px-2.5 py-1 rounded-md mt-1">
-          <DollarSign className="w-3.5 h-3.5" />
-          <span>{commitmentDisplay}</span>
-        </div>
-      )}
+      {/* Commitment + MLP badges */}
+      <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+        {commitmentDisplay && (
+          <div className="inline-flex items-center gap-1.5 text-xs font-medium text-success bg-success/10 px-2.5 py-1 rounded-md">
+            <DollarSign className="w-3.5 h-3.5" />
+            <span>{commitmentDisplay}</span>
+          </div>
+        )}
+        <MLPScoreBadge
+          score={(deal as any).mlp_score}
+          onChange={(score) => updateInvestorDeal.mutate({ id: deal.id, mlp_score: score } as any)}
+        />
+      </div>
+
 
       {/* Notes */}
       {deal.notes && (

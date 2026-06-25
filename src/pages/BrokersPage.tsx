@@ -8,14 +8,33 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useBrokers, useCreateBroker, useUpdateBroker, useDeleteBroker } from '@/hooks/useBrokers';
-import { Plus, Search, Loader2, Trash2, Star, Building, Phone, Mail } from 'lucide-react';
+import { useDeals } from '@/hooks/useDeals';
+import { Plus, Search, Loader2, Trash2, Star, Building, Phone, Mail, TrendingUp } from 'lucide-react';
+import { useMemo } from 'react';
+
 
 export default function BrokersPage() {
   const { data: brokers = [], isLoading } = useBrokers();
+  const { data: deals = [] } = useDeals();
   const createBroker = useCreateBroker();
   const deleteBroker = useDeleteBroker();
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+
+  // Build broker track record: total deals, closed wins, lost, active
+  const brokerStats = useMemo(() => {
+    const map: Record<string, { total: number; won: number; lost: number; active: number }> = {};
+    deals.forEach((d: any) => {
+      if (!d.broker_id) return;
+      if (!map[d.broker_id]) map[d.broker_id] = { total: 0, won: 0, lost: 0, active: 0 };
+      map[d.broker_id].total += 1;
+      if (d.stage === 'closed_won') map[d.broker_id].won += 1;
+      else if (d.stage === 'lost') map[d.broker_id].lost += 1;
+      else map[d.broker_id].active += 1;
+    });
+    return map;
+  }, [deals]);
+
   const [form, setForm] = useState({
     firm: '', contact_name: '', email: '', phone: '',
     coverage_sector: '', coverage_geo: '', responsiveness_score: 3, notes: '',
@@ -68,6 +87,7 @@ export default function BrokersPage() {
               <TableHead>Coverage</TableHead>
               <TableHead>Geography</TableHead>
               <TableHead>Responsiveness</TableHead>
+              <TableHead>Track Record</TableHead>
               <TableHead>Contact Info</TableHead>
               <TableHead className="w-10" />
             </TableRow>
@@ -75,7 +95,8 @@ export default function BrokersPage() {
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-12">
+                <TableCell colSpan={8} className="text-center py-12">
+
                   <Building className="w-10 h-10 mx-auto text-muted-foreground/40 mb-3" />
                   <p className="text-muted-foreground font-medium">No brokers yet</p>
                   <p className="text-sm text-muted-foreground/60 mt-1">Add your first broker contact to start tracking deal flow</p>
@@ -96,6 +117,25 @@ export default function BrokersPage() {
                     </div>
                   </TableCell>
                   <TableCell>
+                    {(() => {
+                      const s = brokerStats[broker.id];
+                      if (!s) return <span className="text-xs text-muted-foreground">No deals</span>;
+                      const winRate = s.total > 0 ? Math.round((s.won / s.total) * 100) : 0;
+                      return (
+                        <div className="flex items-center gap-2 text-xs">
+                          <TrendingUp className="w-3.5 h-3.5 text-primary" />
+                          <span className="font-medium text-foreground">{s.total}</span>
+                          <span className="text-muted-foreground">deals</span>
+                          {s.won > 0 && <span className="text-success">· {s.won} won</span>}
+                          {s.active > 0 && <span className="text-info">· {s.active} active</span>}
+                          {s.lost > 0 && <span className="text-destructive">· {s.lost} lost</span>}
+                          {s.total > 1 && <span className="text-muted-foreground">({winRate}%)</span>}
+                        </div>
+                      );
+                    })()}
+                  </TableCell>
+                  <TableCell>
+
                     <div className="flex gap-2">
                       {broker.email && (
                         <a href={`mailto:${broker.email}`} className="text-muted-foreground hover:text-primary">
