@@ -231,7 +231,14 @@ export default function DealSourcingDeals() {
                       </Badge>
                     </TableCell>
                     <TableCell className="text-muted-foreground capitalize">{deal.source || '—'}</TableCell>
+                    <TableCell>
+                      <MLPScoreBadge
+                        score={(deal as any).mlp_score}
+                        onChange={(score) => updateDeal.mutate({ id: deal.id, mlp_score: score } as any)}
+                      />
+                    </TableCell>
                     <TableCell className="text-muted-foreground">{deal.probability != null ? `${deal.probability}%` : '—'}</TableCell>
+
                     <TableCell className="text-muted-foreground">
                       {deal.expected_close_date ? format(new Date(deal.expected_close_date), 'MMM d, yyyy') : '—'}
                     </TableCell>
