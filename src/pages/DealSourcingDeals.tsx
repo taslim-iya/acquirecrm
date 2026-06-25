@@ -171,9 +171,10 @@ export default function DealSourcingDeals() {
                       <div className="flex items-center justify-between mt-2">
                         <Badge variant="outline" className="text-[10px] capitalize">{deal.source || 'proprietary'}</Badge>
                         <div className="flex items-center gap-1">
-                          {deal.probability != null && (
-                            <span className="text-[10px] text-muted-foreground">{deal.probability}%</span>
-                          )}
+                          <MLPScoreBadge
+                            score={(deal as any).mlp_score}
+                            onChange={(score) => updateDeal.mutate({ id: deal.id, mlp_score: score } as any)}
+                          />
                           <Button
                             variant="ghost"
                             size="icon"
@@ -185,6 +186,7 @@ export default function DealSourcingDeals() {
                           </Button>
                         </div>
                       </div>
+
                     </Card>
                   ))
                 )}
