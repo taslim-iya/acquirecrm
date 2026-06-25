@@ -171,7 +171,7 @@ export default function Contacts() {
     <div className="p-4 md:p-6">
       <PageHeader
         title="Contacts"
-        description="Manage your relationships"
+        description={showAllModes ? 'Manage your relationships (all modes)' : `${modeLabel} contacts`}
         actions={
           <div className="flex gap-2">
             {selectedIds.size > 0 && (
