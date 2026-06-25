@@ -101,9 +101,10 @@ export function useCreateContact() {
           const merged = [...new Set([...existingTags, ...contact.tags])];
           if (merged.length !== existingTags.length) updates.tags = merged;
         }
-        // Update email if not set
-        if (contact.email && !existingContact.email) {
-          updates.email = contact.email;
+        // Resolve / set company_id if missing
+        if (!existingContact.company_id) {
+          const cid = await resolveCompanyId(contact.organization);
+          if (cid) updates.company_id = cid;
         }
 
         if (Object.keys(updates).length > 0) {
@@ -119,14 +120,17 @@ export function useCreateContact() {
         return existingContact;
       }
 
+      const company_id = await resolveCompanyId(contact.organization);
+
       const { data, error } = await supabase
         .from('contacts')
-        .insert({ ...contact, user_id: user.id })
+        .insert({ ...contact, company_id, user_id: user.id })
         .select()
         .single();
 
       if (error) throw error;
       return data;
+
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
