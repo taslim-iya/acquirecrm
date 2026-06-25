@@ -15,10 +15,26 @@ import { useMemo } from 'react';
 
 export default function BrokersPage() {
   const { data: brokers = [], isLoading } = useBrokers();
+  const { data: deals = [] } = useDeals();
   const createBroker = useCreateBroker();
   const deleteBroker = useDeleteBroker();
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
+
+  // Build broker track record: total deals, closed wins, lost, active
+  const brokerStats = useMemo(() => {
+    const map: Record<string, { total: number; won: number; lost: number; active: number }> = {};
+    deals.forEach((d: any) => {
+      if (!d.broker_id) return;
+      if (!map[d.broker_id]) map[d.broker_id] = { total: 0, won: 0, lost: 0, active: 0 };
+      map[d.broker_id].total += 1;
+      if (d.stage === 'closed_won') map[d.broker_id].won += 1;
+      else if (d.stage === 'lost') map[d.broker_id].lost += 1;
+      else map[d.broker_id].active += 1;
+    });
+    return map;
+  }, [deals]);
+
   const [form, setForm] = useState({
     firm: '', contact_name: '', email: '', phone: '',
     coverage_sector: '', coverage_geo: '', responsiveness_score: 3, notes: '',
