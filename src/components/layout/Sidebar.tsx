@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useDemoMode } from '@/hooks/useDemoMode';
 import { useAppMode } from '@/hooks/useAppMode';
+import { useModeAccess } from '@/hooks/useModeAccess';
 import { useUserRole } from '@/hooks/useUserRole';
 import { BrandLogo } from '@/components/brand/BrandLogo';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -93,6 +94,7 @@ const DEFAULT_BOTTOM_NAV: NavItem[] = [
 
 const adminNav = [
   { name: 'Admin Panel', href: '/admin', icon: Shield },
+  { name: 'Team & Access', href: '/admin/team', icon: Users },
 ];
 
 // Icon lookup for rehydrating from localStorage
@@ -159,14 +161,26 @@ export function SidebarProvider({ children }: { children: ReactNode }) {
 
 function ModeToggle() {
   const { mode, setMode } = useAppMode();
+  const { allowedModes } = useModeAccess();
   const modes: { value: 'fundraising' | 'deal-sourcing' | 'research'; label: string }[] = [
     { value: 'fundraising', label: 'Fundraising' },
     { value: 'deal-sourcing', label: 'Sourcing' },
     { value: 'research', label: 'Research' },
   ];
+  const visible = modes.filter((m) => allowedModes.includes(m.value));
+
+  // If the saved mode is no longer allowed, snap to the first allowed mode.
+  useEffect(() => {
+    if (allowedModes.length > 0 && !allowedModes.includes(mode)) {
+      setMode(allowedModes[0]);
+    }
+  }, [allowedModes, mode, setMode]);
+
+  if (visible.length <= 1) return null;
+
   return (
     <div className="flex rounded-lg bg-sidebar-accent/30 p-0.5">
-      {modes.map((m) => (
+      {visible.map((m) => (
         <button
           key={m.value}
           onClick={() => setMode(m.value)}
