@@ -1625,7 +1625,7 @@ export type Database = {
     }
     Enums: {
       adviser_role: "legal" | "financial" | "tax" | "commercial" | "other"
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "intern" | "member"
       contact_type:
         | "investor"
         | "owner"
@@ -1798,7 +1798,7 @@ export const Constants = {
   public: {
     Enums: {
       adviser_role: ["legal", "financial", "tax", "commercial", "other"],
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "intern", "member"],
       contact_type: [
         "investor",
         "owner",
