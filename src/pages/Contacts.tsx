@@ -42,8 +42,10 @@ const warmthColors: Record<string, string> = {
 export default function Contacts() {
   const { data: contacts = [], isLoading } = useContacts();
   const [searchQuery, setSearchQuery] = useState('');
+  const { mode, modeLabel, contactTypesForMode, isTypeInMode } = useAppMode();
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [warmthFilter, setWarmthFilter] = useState<string>('all');
+  const [showAllModes, setShowAllModes] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isDedupeOpen, setIsDedupeOpen] = useState(false);
   const createContact = useCreateContact();
